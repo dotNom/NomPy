@@ -6,9 +6,9 @@ import scrapy.crawler as crawler
 from multiprocessing import Process, Queue
 from twisted.internet import reactor
 
-class BrickSetSpider(scrapy.Spider):
+class DrPryor(scrapy.Spider):
 
-	name = 'brick_spider'
+	name = 'dr_pryor'
 	start_urls = ['http://www.me.utexas.edu/faculty/faculty-directory/pryor']
 
 	custom_settings = {'LOG_LEVEL': 'INFO'}
@@ -20,10 +20,10 @@ class BrickSetSpider(scrapy.Spider):
 		
 
 process = CrawlerProcess()
-process.crawl(BrickSetSpider)
+process.crawl(DrPryor)
 process.start()
 
-hisImage = BrickSetSpider.Images
+hisImage = DrPryor.Images
 hisImage = ",".join(hisImage)
 hisImage = hisImage.split('"')
 
