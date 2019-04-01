@@ -5,12 +5,12 @@ from PIL import Image
 
 class BrickSetSpider(scrapy.Spider):
     name = 'brick_spider'
-    start_urls = ['http://brickset.com/sets/year-1949']
+#    start_urls = ['http://brickset.com/sets/year-1949']
+    start_urls = ['http://brickset.com/sets/year-2017']
     image_URL = []
     piece_count = []
     name_count = []
     year_count = []
-#    counter = 0
     
     def parse(self, response):
         TITLE_SELECTOR = 'title ::text'
@@ -32,9 +32,7 @@ class BrickSetSpider(scrapy.Spider):
             self.image_URL.append(brickset.css(IMAGE_SELECTOR).extract_first())
             self.piece_count.append(brickset.xpath(PIECES_SELECTOR).extract_first())
             self.name_count.append(brickset.css(NAME_SELECTOR).extract_first())
-#            self.counter = self.counter+1
-#            if self.counter > 25:
-#                return
+
         NEXT_PAGE_SELECTOR = '.next a ::attr(href)'
         next_page = response.css(NEXT_PAGE_SELECTOR).extract_first()
         if next_page:
@@ -42,14 +40,14 @@ class BrickSetSpider(scrapy.Spider):
                 response.urljoin(next_page),
                 callback=self.parse
             )
-        else: # If there is not a next page, then go on to the next year
-            NEXT_YEAR_SELECTOR = '.col a ::attr(href)'
-            next_year = response.css(NEXT_YEAR_SELECTOR).extract()[-1]
-            if next_year:
-                yield scrapy.Request(
-                    response.urljoin(next_year),
-                    callback=self.parse
-                )
+#        else: # If there is not a next page, then go on to the next year
+#            NEXT_YEAR_SELECTOR = '.col a ::attr(href)'
+#            next_year = response.css(NEXT_YEAR_SELECTOR).extract()[-1]
+#            if next_year:
+#                yield scrapy.Request(
+#                    response.urljoin(next_year),
+#                    callback=self.parse
+#                )
             
 def is_int(s):
     try:
