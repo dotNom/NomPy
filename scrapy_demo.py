@@ -11,6 +11,7 @@ class BrickSetSpider(scrapy.Spider):
     piece_count = []
     name_count = []
     year_count = []
+    price_count = []
     
     def parse(self, response):
         TITLE_SELECTOR = 'title ::text'
@@ -21,17 +22,21 @@ class BrickSetSpider(scrapy.Spider):
             PIECES_SELECTOR = './/dl[dt/text() = "Pieces"]/dd/a/text()'
             MINIFIGS_SELECTOR = './/dl[dt/text() = "Minifigs"]/dd[2]/a/text()'
             IMAGE_SELECTOR = 'img ::attr(src)'
+            COST_SELECTOR = './/dl[dt/text() = "RRP"]/dd[3]/text()'
+
             yield {
                 'title': response.css('.no-js').css(TITLE_SELECTOR).extract_first().split()[0],
                 'name': brickset.css(NAME_SELECTOR).extract_first(),
                 'pieces': brickset.xpath(PIECES_SELECTOR).extract_first(),
                 'minifigs': brickset.xpath(MINIFIGS_SELECTOR).extract_first(),
                 'image': brickset.css(IMAGE_SELECTOR).extract_first(),
+                'cost': brickset.xpath(COST_SELECTOR).extract_first(),
             }            
             self.year_count.append(response.css('.no-js').css(TITLE_SELECTOR).extract_first().split()[0])
             self.image_URL.append(brickset.css(IMAGE_SELECTOR).extract_first())
             self.piece_count.append(brickset.xpath(PIECES_SELECTOR).extract_first())
             self.name_count.append(brickset.css(NAME_SELECTOR).extract_first())
+            self.price_count.append(brickset.xpath(COST_SELECTOR).extract_first()),
 
         NEXT_PAGE_SELECTOR = '.next a ::attr(href)'
         next_page = response.css(NEXT_PAGE_SELECTOR).extract_first()
@@ -64,6 +69,7 @@ if __name__ == "__main__":
     names = BrickSetSpider.name_count
     pieces = BrickSetSpider.piece_count
     year = BrickSetSpider.year_count
+    cost = BrickSetSpider.price_count
     
     maxPiece = 0
     maxind = 0
@@ -78,10 +84,16 @@ if __name__ == "__main__":
     
     maxName = names[maxind]
     maxImg = images[maxind]
-    
+    maxCost = cost[maxind]
+
+    try:
+        maxCost = maxCost.replace(" ",",")
+        maxCost = maxCost.split(",")[0]
+    except: pass
+
     print()
-    print(maxName,maxPiece,maxImg,year[maxind])
-    
+    print(maxName,maxPiece,maxImg,year[maxind],maxCost)
+   
     urllib.request.urlretrieve(maxImg,'Max_Image.png')
     img = Image.open('Max_Image.png')
     img.show()
