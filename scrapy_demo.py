@@ -23,6 +23,19 @@ class BrickSetSpider(scrapy.Spider):
             MINIFIGS_SELECTOR = './/dl[dt/text() = "Minifigs"]/dd[2]/a/text()'
             IMAGE_SELECTOR = 'img ::attr(src)'
             COST_SELECTOR = './/dl[dt/text() = "RRP"]/dd[3]/text()'
+            COSTalt_SELECTOR = './/dl[dt/text() = "PPP"]/dd[2]/text()' #alternate to capture irregularity
+
+            Cost = brickset.xpath(COST_SELECTOR).extract_first()
+            Costalt = brickset.xpath(COSTalt_SELECTOR).extract_first()
+
+            try:
+                Cost = Cost.replace(" ",",")
+                Cost = Cost.split(",")[0]
+                Costalt = Costalt.replace(" ",",")
+                Costalt = Costalt.split(",")[0]
+
+                if Costalt[0]=='$': Cost = Costalt #find real cost 
+            except: pass
 
             yield {
                 'title': response.css('.no-js').css(TITLE_SELECTOR).extract_first().split()[0],
@@ -30,13 +43,13 @@ class BrickSetSpider(scrapy.Spider):
                 'pieces': brickset.xpath(PIECES_SELECTOR).extract_first(),
                 'minifigs': brickset.xpath(MINIFIGS_SELECTOR).extract_first(),
                 'image': brickset.css(IMAGE_SELECTOR).extract_first(),
-                'cost': brickset.xpath(COST_SELECTOR).extract_first(),
+                'cost': Cost,
             }            
             self.year_count.append(response.css('.no-js').css(TITLE_SELECTOR).extract_first().split()[0])
             self.image_URL.append(brickset.css(IMAGE_SELECTOR).extract_first())
             self.piece_count.append(brickset.xpath(PIECES_SELECTOR).extract_first())
             self.name_count.append(brickset.css(NAME_SELECTOR).extract_first())
-            self.price_count.append(brickset.xpath(COST_SELECTOR).extract_first()),
+            self.price_count.append(Cost),
 
         NEXT_PAGE_SELECTOR = '.next a ::attr(href)'
         next_page = response.css(NEXT_PAGE_SELECTOR).extract_first()
