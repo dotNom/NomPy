@@ -12,7 +12,7 @@
 
 [Official](https://docs.scrapy.org/en/latest/intro/tutorial.html)
 
-[Digital Ocean](https://www.digitalocean.com/community/tutorials/how-to-crawl-a-web-page-with-scrapy-and-python-3]
+[Digital Ocean](https://www.digitalocean.com/community/tutorials/how-to-crawl-a-web-page-with-scrapy-and-python-3)
 
 ### Links to install guides:
 
