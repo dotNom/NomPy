@@ -58,14 +58,14 @@ class BrickSetSpider(scrapy.Spider):
                 response.urljoin(next_page),
                 callback=self.parse
             )
-#        else: # If there is not a next page, then go on to the next year
-#            NEXT_YEAR_SELECTOR = '.col a ::attr(href)'
-#            next_year = response.css(NEXT_YEAR_SELECTOR).extract()[-1]
-#            if next_year:
-#                yield scrapy.Request(
-#                    response.urljoin(next_year),
-#                    callback=self.parse
-#                )
+        else: # If there is not a next page, then go on to the next year
+            NEXT_YEAR_SELECTOR = '.col a ::attr(href)'
+            next_year = response.css(NEXT_YEAR_SELECTOR).extract()[-1]
+            if next_year:
+                yield scrapy.Request(
+                    response.urljoin(next_year),
+                    callback=self.parse
+                )
             
 def is_int(s):
     try:
@@ -105,9 +105,49 @@ if __name__ == "__main__":
     except: pass
 
     print()
-    print(maxName,maxPiece,maxImg,year[maxind],maxCost)
-   
+    print('Biggest Set: {}\n\
+    Pieces: {}\n\
+    Image URL: {}\n\
+    Year: {}\n\
+    Cost: {}'\
+    .format(maxName,maxPiece,maxImg,year[maxind],maxCost))    
+
     urllib.request.urlretrieve(maxImg,'Max_Image.png')
     img = Image.open('Max_Image.png')
     img.show()
     
+    
+    #%% do data science
+    D = [float(ele.split('$')[1]) if ele is not None and ele.find('$')!=-1 else 0 for ele in cost]
+    
+    def findJunk(j):
+        if j is not None:
+            if j.isnumeric():
+                if float(j)>20:
+                    return 1
+                else:
+                    return 0
+    
+    R = [[y, d/float(s), s] for d, s, y in zip(D, pieces, year) if d!=0 and findJunk(s)]
+    
+    years = list(set([float(x[0]) for x in R]))
+    YR = []
+    yc = []    
+    for y in years:
+        yc = []
+        for x in R:
+            if float(x[0]) == y:
+               yc.append(x[1]*100)
+        YR.append(sum(yc)/len(yc))
+        yc = 0
+        
+    print('Total cost of all sets for all years: ${:.2f}\n\
+    Total pieces of all sets for all years {}'\
+    .format(sum(D),sum([float(s[2]) for s in R])))
+    
+    #%% plot data science
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots()
+    _=plt.rcParams.update({'font.size': 22})
+    _=ax.plot(years,YR)
+    _=ax.set(xlabel='year', ylabel='Price/Piece (cents)', title='LEGO prices')
