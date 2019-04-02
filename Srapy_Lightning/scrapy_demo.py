@@ -117,9 +117,12 @@ if __name__ == "__main__":
     img.show()
     
     
-    #%% do data science
+    #%% do data science, kinda
+    
+    # get items with prices in USD
     D = [float(ele.split('$')[1]) if ele is not None and ele.find('$')!=-1 else 0 for ele in cost]
     
+    # function to sort junk better
     def findJunk(j):
         if j is not None:
             if j.isnumeric():
@@ -127,9 +130,10 @@ if __name__ == "__main__":
                     return 1
                 else:
                     return 0
-    
+    # find pieces and stuff
     R = [[y, d/float(s), s] for d, s, y in zip(D, pieces, year) if d!=0 and findJunk(s)]
     
+    #calculate price/piece
     years = list(set([float(x[0]) for x in R]))
     YR = []
     yc = []    
