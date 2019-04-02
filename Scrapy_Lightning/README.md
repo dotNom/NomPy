@@ -2,7 +2,7 @@
 
 ### Google Slides
 
-¯\\\_(ツ)_/¯
+[Lightning Presentation](https://docs.google.com/presentation/d/1d1BLg4qNTd0rZ39Z654oGUlL0a1vLbPODstZ3BOdoIM/edit?usp=sharing)
 
 ### Links to Docs:
 
