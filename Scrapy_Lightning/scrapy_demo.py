@@ -2,6 +2,8 @@ import scrapy
 from scrapy.crawler import CrawlerProcess
 import urllib.request
 from PIL import Image
+import matplotlib.pyplot as plt
+
 
 class BrickSetSpider(scrapy.Spider):
     name = 'brick_spider'
@@ -18,13 +20,15 @@ class BrickSetSpider(scrapy.Spider):
         SET_SELECTOR = '.set'
         for brickset in response.css(SET_SELECTOR):
             
+            # denfine selector types
             NAME_SELECTOR = 'h1 ::text'
             PIECES_SELECTOR = './/dl[dt/text() = "Pieces"]/dd/a/text()'
             MINIFIGS_SELECTOR = './/dl[dt/text() = "Minifigs"]/dd[2]/a/text()'
             IMAGE_SELECTOR = 'img ::attr(src)'
             COST_SELECTOR = './/dl[dt/text() = "RRP"]/dd[3]/text()'
             COSTalt_SELECTOR = './/dl[dt/text() = "PPP"]/dd[2]/text()' #alternate to capture irregularity
-
+            
+            # clean up some cost types for different kinds of cost labels
             Cost = brickset.xpath(COST_SELECTOR).extract_first()
             Costalt = brickset.xpath(COSTalt_SELECTOR).extract_first()
 
@@ -36,7 +40,8 @@ class BrickSetSpider(scrapy.Spider):
 
                 if Costalt[0]=='$': Cost = Costalt #find real cost 
             except: pass
-
+            
+            # parse page and output results
             yield {
                 'title': response.css('.no-js').css(TITLE_SELECTOR).extract_first().split()[0],
                 'name': brickset.css(NAME_SELECTOR).extract_first(),
@@ -44,13 +49,15 @@ class BrickSetSpider(scrapy.Spider):
                 'minifigs': brickset.xpath(MINIFIGS_SELECTOR).extract_first(),
                 'image': brickset.css(IMAGE_SELECTOR).extract_first(),
                 'cost': Cost,
-            }            
+            }
+            # store data for later
             self.year_count.append(response.css('.no-js').css(TITLE_SELECTOR).extract_first().split()[0])
             self.image_URL.append(brickset.css(IMAGE_SELECTOR).extract_first())
             self.piece_count.append(brickset.xpath(PIECES_SELECTOR).extract_first())
             self.name_count.append(brickset.css(NAME_SELECTOR).extract_first())
             self.price_count.append(Cost),
-
+            
+        # get next page
         NEXT_PAGE_SELECTOR = '.next a ::attr(href)'
         next_page = response.css(NEXT_PAGE_SELECTOR).extract_first()
         if next_page:
@@ -84,6 +91,7 @@ if __name__ == "__main__":
     year = BrickSetSpider.year_count
     cost = BrickSetSpider.price_count
     
+    # Find the biggest
     maxPiece = 0
     maxind = 0
     i = 0
@@ -105,15 +113,10 @@ if __name__ == "__main__":
     except: pass
 
     print()
-    print('Biggest Set: {}\n\
-    Pieces: {}\n\
-    Image URL: {}\n\
-    Year: {}\n\
-    Cost: {}'\
-    .format(maxName,maxPiece,maxImg,year[maxind],maxCost))    
+    print('\nBiggest Set: {}\nPieces: {}\nImage URL: {}\nYear: {}\nCost: {}\n'.format(maxName,maxPiece,maxImg,year[maxind],maxCost))    
 
-    urllib.request.urlretrieve(maxImg,'Max_Image.png')
-    img = Image.open('Max_Image.png')
+    urllib.request.urlretrieve(maxImg,'Max_Image.jpg')
+    img = Image.open('Max_Image.jpg')
     img.show()
     
     
@@ -145,12 +148,9 @@ if __name__ == "__main__":
         YR.append(sum(yc)/len(yc))
         yc = 0
         
-    print('Total cost of all sets for all years: ${:.2f}\n\
-    Total pieces of all sets for all years {}'\
-    .format(sum(D),sum([float(s[2]) for s in R])))
+    print('\nTotal cost of all sets for all years: ${:.2f}\nTotal pieces of all sets for all years: {:n}\n'.format(sum(D),sum([float(s[2]) for s in R])))
     
-    #%% plot data science
-    import matplotlib.pyplot as plt
+#    %% plot data science
     fig, ax = plt.subplots()
     _=plt.rcParams.update({'font.size': 22})
     _=ax.plot(years,YR)
