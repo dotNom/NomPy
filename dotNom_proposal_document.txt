@@ -1,0 +1,29 @@
+- Documentation of any similar/related projects you found online and/or what makes this project sufficiently unique.
+
+Project Objective
+-----------------
+Develop a web scraper to search for free food on the UT campus.
+
+Approach and Packages
+-----------------------
+The approach will be to scrape calendar.utexas.edu for any events containing “free food.” The data from the RSS feed events will then be parsed and added to a repository of free food events, categorized by date and location.
+
+Packages:
+•	Scrapy 		to scrape web pages
+•	Plotly 		to display map of locations
+•	FeedParser 	to parse RSS feed 
+•	ics	  to create calendar events 
+
+Deliverables
+-------------
+•	GUI webpage for user to visit that displays free food events along with map and calendar link
+•	Published code to github
+
+Documentation
+-------------
+
+Delegation Plan
+----------------
+•	Martin		scraping/parsing
+•	Georgina	parsing/calendar 
+•	Jared 		GUI
