@@ -12,7 +12,7 @@ Packages:
 •	Scrapy 		to scrape web pages
 •	Plotly 		to display map of locations
 •	FeedParser 	to parse RSS feed 
-•	ics	  to create calendar events 
+•	ics       to create calendar events 
 
 Deliverables
 -------------
