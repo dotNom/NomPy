@@ -1,5 +1,3 @@
-- Documentation of any similar/related projects you found online and/or what makes this project sufficiently unique.
-
 Project Objective
 -----------------
 Develop a web scraper to search for free food on the UT campus.
@@ -21,6 +19,11 @@ Deliverables
 
 Documentation
 -------------
+•	https://www.unibees.com/
+•	http://www.universitylunchbox.com/#about
+
+Both garbage and get events from students and business sponsors.
+
 
 Delegation Plan
 ----------------
