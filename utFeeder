@@ -1,13 +1,56 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Apr 15 19:31:06 2019
-
-@author: myo
-"""
-
 import feedparser
+import re
 
-feed = feedparser.parse('http://calendar.utexas.edu/calendar.xml')
+#foods = ['food', 'pizza']
+#
+feed = feedparser.parse('calendar.xml')
+##feed = feedparser.parse('http://calendar.utexas.edu/calendar.xml')
+#
+#food_list = [foodE(event, foods) for event in feed.entries 
+#             if re.findall(r"(?=("+'|'.join(foods)+r"))", event) in event.description]
 
-food_list = [event.link for event in feed.entries if 'food' in event.description]
+
+class foodE:
+    ''' Food event generated from calendar feed'''
+
+    def __init__(self, event, foods):
+        '''
+        basic init
+        make smarter/more robust later
+        '''
+        self.food = re.findall(r"(?=("+'|'.join(foods)+r"))", event.description)
+        
+        self.title = event.title
+        self.location = (event.geo_lat, event.geo_long)
+        self.date = event.updated_parsed
+        
+    def get_ics(self):
+        print('idk')
+        
+class Feeder:
+    ''' Interact with RSS feed '''
+    
+    def __init__(self, url, foods):
+        self.url = url
+        self.foods = foods
+        self.feed = feedparser.parse(url)
+        self.etag = self.feed.etag
+        self.foodEs = [foodE(event, self.foods) for event in self.feed.entries 
+             if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.description)]
+        
+    def update(self):
+        feed_temp = feedparser.parse(self.url, self.etag)
+        if feed_temp.status == 304:
+            print('no updates')
+        else:
+            self.feed = feed_temp
+
+if __name__ == '__main__':
+                
+    foods = ['food', 'pizza']
+    
+    #local calendar
+#    url = 'calendar.xml'
+    url = 'http://calendar.utexas.edu/calendar.xml'
+    
+    test = Feeder(url, foods)
