@@ -9,19 +9,26 @@ class foodE:
         basic init
         make smarter/more robust later
         '''
-        self.food = re.findall(r"(?=("+'|'.join(foods)+r"))", event.description)
+        self.food = re.findall(r"(?=("+'|'.join(foods)+r"))", event.summary)
         
         elements = ['title', 'summary', 'geo_long', 'geo_lat', 'updated_parsed', 'link']
         names = ['title', 'description', 'location', 'location', 'time', 'link']
         
         [self.ccreate(event, element, name) for name, element in zip(names,elements)]
         
+        self.make_location(event)
+        
+    #maybe better way to do init
+    def make_location(self, event):
+        if hasattr(event, 'geo_lat'):
+            self.location = (float(event.geo_long), float(event.geo_lat))
+        
     def ccreate(self, event, element, name):
         if element in event.keys():
             value = event[element]
             if hasattr(self, name):
                 value = (value, getattr(self, name))
-            setattr(self, name, value)        
+            setattr(self, name, value)
             
     def _get_ics(self):
         print('idk')
@@ -34,8 +41,7 @@ class Feeder:
         self.foods = foods
         self.feed = feedparser.parse(url)
         if 'etag' in self.feed.keys(): self.etag = self.feed.etag
-        self.foodEs = [foodE(event, self.foods) for event in self.feed.entries 
-             if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.description)]
+        self.make_foodEs()
         
     def update(self):
         if hasattr(self, 'etag'):
@@ -44,6 +50,16 @@ class Feeder:
                 print('no updates')
             else:
                 self.feed = feed_temp
+                self.make_foodEs
+        else:
+            print('no etag')
+            self.feed = feedparser.parse(url)
+            if 'etag' in self.feed.keys(): self.etag = self.feed.etag
+            self.make_foodEs()
+                
+    def make_foodEs(self):
+        self.foodEs = [foodE(event, self.foods) for event in self.feed.entries 
+                       if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.description)]
 
 if __name__ == '__main__':
                 
