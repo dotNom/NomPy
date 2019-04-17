@@ -11,8 +11,8 @@ class foodE:
         '''
         self.food = re.findall(r"(?=("+'|'.join(foods)+r"))", event.description)
         
-        elements = ['title', 'geo_lat', 'geo_long', 'updated_parsed']
-        names = ['title', 'location', 'location', 'time']
+        elements = ['title', 'summary', 'geo_long', 'geo_lat', 'updated_parsed', 'link']
+        names = ['title', 'description', 'location', 'location', 'time', 'link']
         
         [self.ccreate(event, element, name) for name, element in zip(names,elements)]
         
@@ -47,10 +47,12 @@ class Feeder:
 
 if __name__ == '__main__':
                 
-    foods = ['food', 'pizza']
+    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos']
+    #tiff's tiffs Tiffs
     
     #local calendar
-    url = 'calendar.xml'
-#    url = 'http://calendar.utexas.edu/calendar.xml'
+#    url = 'calendar.xml'
+    url = 'http://calendar.utexas.edu/calendar.xml'
+#    url = 'http://calendar.mit.edu/calendar.xml'
     
     test = Feeder(url, foods)
