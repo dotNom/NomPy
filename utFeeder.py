@@ -1,15 +1,6 @@
 import feedparser
 import re
 
-#foods = ['food', 'pizza']
-#
-feed = feedparser.parse('calendar.xml')
-##feed = feedparser.parse('http://calendar.utexas.edu/calendar.xml')
-#
-#food_list = [foodE(event, foods) for event in feed.entries 
-#             if re.findall(r"(?=("+'|'.join(foods)+r"))", event) in event.description]
-
-
 class foodE:
     ''' Food event generated from calendar feed'''
 
@@ -20,11 +11,19 @@ class foodE:
         '''
         self.food = re.findall(r"(?=("+'|'.join(foods)+r"))", event.description)
         
-        self.title = event.title
-        self.location = (event.geo_lat, event.geo_long)
-        self.date = event.updated_parsed
+        elements = ['title', 'geo_lat', 'geo_long', 'updated_parsed']
+        names = ['title', 'location', 'location', 'time']
         
-    def get_ics(self):
+        [self.ccreate(event, element, name) for name, element in zip(names,elements)]
+        
+    def ccreate(self, event, element, name):
+        if element in event.keys():
+            value = event[element]
+            if hasattr(self, name):
+                value = (value, getattr(self, name))
+            setattr(self, name, value)        
+            
+    def _get_ics(self):
         print('idk')
         
 class Feeder:
@@ -34,7 +33,8 @@ class Feeder:
         self.url = url
         self.foods = foods
         self.feed = feedparser.parse(url)
-        self.etag = self.feed.etag
+        if 'etag' in self.feed.keys():
+            self.etag = self.feed.etag
         self.foodEs = [foodE(event, self.foods) for event in self.feed.entries 
              if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.description)]
         
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     foods = ['food', 'pizza']
     
     #local calendar
-#    url = 'calendar.xml'
-    url = 'http://calendar.utexas.edu/calendar.xml'
+    url = 'calendar.xml'
+#    url = 'http://calendar.utexas.edu/calendar.xml'
     
     test = Feeder(url, foods)
