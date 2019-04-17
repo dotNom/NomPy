@@ -33,17 +33,17 @@ class Feeder:
         self.url = url
         self.foods = foods
         self.feed = feedparser.parse(url)
-        if 'etag' in self.feed.keys():
-            self.etag = self.feed.etag
+        if 'etag' in self.feed.keys(): self.etag = self.feed.etag
         self.foodEs = [foodE(event, self.foods) for event in self.feed.entries 
              if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.description)]
         
     def update(self):
-        feed_temp = feedparser.parse(self.url, self.etag)
-        if feed_temp.status == 304:
-            print('no updates')
-        else:
-            self.feed = feed_temp
+        if hasattr(self, 'etag'):
+            feed_temp = feedparser.parse(self.url, self.etag)
+            if feed_temp.status == 304:
+                print('no updates')
+            else:
+                self.feed = feed_temp
 
 if __name__ == '__main__':
                 
