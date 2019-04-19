@@ -20,7 +20,7 @@ def extractICS(a,extract):
         if itm.find(extract)>=0:
             return itm
         
-def _get_ics(link):
+def get_ics(link):
     
     '''
     get ics file from the link in the event
@@ -50,7 +50,7 @@ def getICSprops(event):
         from the ics file
     '''
     
-    ICSstr = _get_ics(event.link)
+    ICSstr = get_ics(event.link)
     event.timestart = extractICS(ICSstr,'DTSTART')
     event.timeend = extractICS(ICSstr,'DTEND')
     event.timestamp = extractICS(ICSstr,'DTSTAMP')
@@ -103,22 +103,29 @@ class foodE:
         '''
         basic init
         make smarter/more robust later
+        
+        
         '''
         self.food = re.findall(r"(?=("+'|'.join(foods)+r"))", event.summary)
+        names = ['title', 'description', 'location', 'location', 'time', 'link']        
+        [setattr(self, name, None) for name in names]
+
+#        elements = ['title', 'summary', 'geo_lat', 'geo_long', 'updated_parsed', 'link']
+#        [self._ccreate(event, element, name) for name, element in zip(names,elements)]
         
-        elements = ['title', 'summary', 'geo_long', 'geo_lat', 'updated_parsed', 'link']
-        names = ['title', 'description', 'location', 'location', 'time', 'link']
-        
-        [self.ccreate(event, element, name) for name, element in zip(names,elements)]
+        if 'title' in event.keys(): self.title = event.title
+        if 'summary' in event.keys(): self.summary = event.summary
+        if 'updated_parsed' in event.keys(): self.time = event.updated_parsed
+        if 'link' in event.keys(): self.link = event.link
         
         self.make_location(event)
         
     #maybe better way to do init
     def make_location(self, event):
         if hasattr(event, 'geo_lat'):
-            self.location = (float(event.geo_long), float(event.geo_lat))
+            self.geo = (float(event.geo_lat), float(event.geo_long))
         
-    def ccreate(self, event, element, name):
+    def _ccreate(self, event, element, name):
         if element in event.keys():
             value = event[element]
             if hasattr(self, name):
@@ -156,11 +163,13 @@ class Feeder:
 if __name__ == '__main__':
                 
     foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos']
+    #fix regex
     #tiff's tiffs Tiffs
     
     #local calendar
 #    url = 'calendar.xml'
-    url = 'http://calendar.utexas.edu/calendar.xml'
+#    url = 'http://calendar.utexas.edu/calendar.xml'
 #    url = 'http://calendar.mit.edu/calendar.xml'
+    url = 'http://events.umich.edu/day/rss'
     
-    test = Feeder(url, foods)
+    feeder = Feeder(url, foods)
