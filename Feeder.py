@@ -5,15 +5,78 @@ import requests
 from bs4 import BeautifulSoup as bs4
 import time
 
-#add function that checks for if link provided has rss feed and returns the link to the feed
-
+def checkforRSS(linklist,debugMode=1):
+    
+    '''
+    Function takes in a single link or a set of links to find if there is an rss feed
+    in the provided page, and it returns 2 arguments:
+        True or False if there is/isn't an rss feed in the link
+        a list containing links to all rss feeds found (empty if no feed)
+    If a list or tuple is given, then it returns the above in two different lists
+    One of Trues and Falses depending on if an rss feed was found on the page
+    The other of lists containing sublists which hold the links to these feeds 
+    '''
+    
+    if type(linklist) != list and type(linklist) != tuple:
+        temp = [linklist]
+        linklist = temp.copy()
+        
+    isRss = []
+    RssLink_s = []
+    
+    ct = 0
+    
+    for link in linklist:
+        RssLink_s.append([])
+        isRss.append(False)
+        try:
+            r = requests.get(link).text
+        
+            rtxt = bs4(r,'lxml')
+            
+            ctr = 0
+            
+            for ij in rtxt.findAll("a"):
+            	
+                Attr = ij.attrs
+                try:
+                    Attrhref = Attr['href']
+                    if Attrhref:
+                        if Attrhref.find('xml')>=0 or Attrhref.find('rss')>=0:
+                        
+                            if debugMode == 1:
+                                if 'title' in Attr:
+                                    print(ctr,':',Attrhref,Attr['title'])
+                                else:
+                                    print(ctr,':',Attr)
+                                    
+                            isRss[ct] = True
+                            if Attrhref not in RssLink_s[ct]:
+                                RssLink_s[ct].append(Attrhref)
+                            
+                except KeyError:
+                    if debugMode == 1:
+                        print('KeyError because No href key')
+            
+                ctr += 1
+        
+        except requests.exceptions.InvalidURL: 
+            if debugMode == 1:
+                print('Exception raised: InvalidURL')
+                
+        ct += 1
+    
+    if len(isRss)==1:
+        return isRss[0], RssLink_s[0]
+    else:
+        return isRss, RssLink_s
 
 def addtoICS(event,start,oldstring = ''):
     
     '''
         Create ICS string for file in the format to open up in calendar
     '''
-    #add name -> need to parse out the description so that it only gets valid stuff
+    
     #name is summart
     fillme = []
     
@@ -22,13 +85,12 @@ def addtoICS(event,start,oldstring = ''):
         
     fillme.append('BEGIN:VEVENT\n')
     
-    if event.category: fillme.append(event.category+'\n')
-    if event.description: fillme.append('DESCRIPTION:'+event.description+'\n')
+    if event.descriptionICS: fillme.append(event.descriptionICS+'\n')
     if event.timeend: fillme.append(event.timeend+'\n')
     if event.timestart: fillme.append(event.timestart+'\n')
     if event.timestamp: fillme.append(event.timestamp+'\n')
     if event.locwithBUI: fillme.append(event.locwithBUI+'\n')
-    if event.summaryICS: fillme.append(event.summary+'\n')
+    if event.summaryICS: fillme.append(event.summaryICS+'\n')
     
     fillme.append('END:VEVENT\n')
     
@@ -55,7 +117,7 @@ class foodE:
         time: python time struct in UTC
         link: link string to calendar event page
         geo: tuple(lat,long) of floats
-        free: Boolean indicator that the text 'free' is somewehre in there
+        free: Boolean indicator that the text 'free' is somewhere in there
         
         Other ICS attribs, not sure yet
         
@@ -109,22 +171,45 @@ class foodE:
         '''
         
         a = a.split('\n')
-        for itm in a:
+        found = None
+        toRet = None
+        
+        for itm in a:      
             if itm.find(extract)>=0:
-                return itm
-            
-    def _get_ics(self, link):
+                toRet = itm.strip()
+                found = a.index(itm)
+                break
+        
+        if found != None:
+            for itm in a[found+1:]:
+                itmNew = itm.split(':')
+                if len(itmNew)>1:
+                    if itmNew[0].isupper():
+                        return toRet
+                    else:
+                        toRet += itm.strip()
+                else:
+                    toRet += itm.strip()
+        
+        return toRet
+    
+    def _formatTIME(self,intime):
+    
+        '''format python timestruct into form to compare with ics time'''
+    
+        intime=str(intime)
+        if len(intime)==1: intime='0'+intime
+        return intime
+    
+    def _get_ics(self, link, intime):
         
         '''
         get ics file from the link in the event
             ics on the link has all the times, so parse the ics file so that
-            you only get the time event that matches the extracted time in the event
+            you only get the time events that are in the future
         '''
         
-        #need to fix this so that it only get the time that matters
-        url = link
-        urllist = [url,'.ics']
-        url = ''.join(urllist)
+        url = self.link+'.ics'
         urllib.request.urlretrieve(url,'temp.ics')
         
         #clean up the stuff in the ics file
@@ -132,8 +217,16 @@ class foodE:
             myICS = myfile.read()
         
         myICS = myICS.split('BEGIN')
-        myICS = 'BEGIN'.join(myICS[0:3])
-        
+    
+        for entry in myICS:
+            start = self._extractICS(entry,'DTSTART')
+            if start:
+                start = start.replace('DTSTART:','')
+                start = start.replace('DTSTART;VALUE=DATE:','')
+                reftime=self._formatTIME(intime.tm_year)+self._formatTIME(intime.tm_mon)+self._formatTIME(intime.tm_mday)
+                if int(reftime)==int(start[0:8]):
+                    myICS = entry
+                    
         # UT is rate limiting us and pausing the ics downloads
         time.sleep(.5)
         
@@ -146,12 +239,12 @@ class foodE:
             from the ics file
         '''
         
-        self.ICSstr = self._get_ics(self.link)
+        self.ICSstr = self._get_ics(self.link,self.time)
         self.timestart = self._extractICS(self.ICSstr,'DTSTART')
         self.timeend = self._extractICS(self.ICSstr,'DTEND')
         self.timestamp = self._extractICS(self.ICSstr,'DTSTAMP')
         self.locwithBUI = self._extractICS(self.ICSstr,'LOCATION') #location with building number
-        self.category = self._extractICS(self.ICSstr,'CATEGORIES') #category of event
+        self.descriptionICS = self._extractICS(self.ICSstr,'DESCRIPTION') #description of event from ics
         self.summaryICS = self._extractICS(self.ICSstr,'SUMMARY')
                 
 class Feeder:
@@ -190,10 +283,30 @@ if __name__ == '__main__':
     #tiff's tiffs Tiffs
     
     #local calendar
-    url = 'calendar.xml'
-#    url = 'http://calendar.utexas.edu/calendar.xml'
+#    url = 'calendar.xml'
+    url = 'http://calendar.utexas.edu/calendar.xml'
 #    url = 'http://calendar.mit.edu/calendar.xml'
 #    url = 'http://events.umich.edu/day/rss'
     # michigan has quite different format and no geo, but it doesn't break
     
     feeder = Feeder(url, foods)
+    
+    #get full calendar of all events found
+    
+    shouldCalendar = 'yes' #Do you want calendar of events?:'yes' or 'no'. 
+    toStart = 0
+    summ = 0
+    
+    if shouldCalendar.upper()=='YES':
+        for event in feeder.foodEs:
+            print(event.summaryICS)
+            summ += 1
+            print(summ)
+            if toStart == 0: 
+                string = addtoICS(event,1)
+                toStart += 1
+            else:
+                string = addtoICS(event,0,string)
+                                  
+        
+        writetoICS(string,'CollatedICS.ics')
