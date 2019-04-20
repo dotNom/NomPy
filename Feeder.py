@@ -1,6 +1,5 @@
 import feedparser
 import re
-import urllib.request
 import requests
 from bs4 import BeautifulSoup as bs4
 import time
@@ -209,13 +208,10 @@ class foodE:
             you only get the time events that are in the future
         '''
         
-        url = self.link+'.ics'
-        urllib.request.urlretrieve(url,'temp.ics')
-        
+        url = link + '.ics'
+        myICS = requests.get(url).text #retrieve ics and save as string in myICS
+       
         #clean up the stuff in the ics file
-        with open('temp.ics', encoding = "utf8", mode = 'r') as myfile:
-            myICS = myfile.read()
-        
         myICS = myICS.split('BEGIN')
     
         for entry in myICS:
@@ -276,9 +272,11 @@ class Feeder:
                        if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.description)]
 
 if __name__ == '__main__':
-                
-#    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos']
-    foods = ['food']
+    
+    start = time.time()
+    
+    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos']
+ #   foods = ['food']
     #need to fix regex
     #tiff's tiffs Tiffs
     
@@ -310,3 +308,7 @@ if __name__ == '__main__':
                                   
         
         writetoICS(string,'CollatedICS.ics')
+        
+    end = time.time()
+    
+    print('runtime:',end-start,'s')
