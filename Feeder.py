@@ -137,7 +137,8 @@ class foodE:
         '''
 
         self.food = re.findall(r"(?=("+'|'.join(foods)+r"))", event.summary)
-        if re.findall(r"(?=("+'|'.join('free')+r"))", event.summary): self.free = True 
+        if 'free' in event.summary.lower(): self.free = True 
+        else: self.free = False
         
         names = ['title', 'summary', 'location', 'location', 'time', 'link', '_id']
         icsnames = ['timestart', 'timeend', 'timestamp', 'locwithBUI', 'descriptionICS', 'summaryICS']
@@ -302,17 +303,17 @@ if __name__ == '__main__':
     
     start = time.time()
     
-#    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos']
-    foods = ['food']
+    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos']
+#    foods = ['food']
     #need to fix regex
     #tiff's tiffs Tiffs
     
     #local calendar
-#    url = 'calendar.xml'
+    url = 'calendar.xml'
 #    url = 'http://calendar.utexas.edu/calendar.xml'
 #    url = 'http://calendar.mit.edu/calendar.xml'
 #    url = 'http://events.umich.edu/day/rss'
-    url = 'http://events.umich.edu/week/rss'
+#    url = 'http://events.umich.edu/week/rss'
 #    url = 'michigan.xml'
     # michigan has quite different format and no geo, but it doesn't break
     
