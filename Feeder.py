@@ -131,16 +131,20 @@ class foodE:
         self.food = re.findall(r"(?=("+'|'.join(foods)+r"))", event.summary)
         if re.findall(r"(?=("+'|'.join('free')+r"))", event.summary): self.free = True 
         
-        names = ['title', 'summary', 'location', 'location', 'time', 'link']        
-        [setattr(self, name, None) for name in names]
+        names = ['title', 'summary', 'location', 'location', 'time', 'link', '_id']
+        icsnames = ['timestart', 'timeend', 'timestamp', 'locwithBUI', 'descriptionICS', 'summaryICS']
+        [setattr(self, name, None) for name in names + icsnames]
 
 #        elements = ['title', 'summary', 'geo_lat', 'geo_long', 'updated_parsed', 'link']
 #        [self._ccreate(event, element, name) for name, element in zip(names,elements)]
         
         if 'title' in event.keys(): self.title = event.title
         if 'summary' in event.keys(): self.summary = event.summary
-        if 'updated_parsed' in event.keys(): self.time = event.updated_parsed
+        if 'published_parsed' in event.keys(): self.time = event.published_parsed #not sure if we should use published_parsed or updated_parsed
         if 'link' in event.keys(): self.link = event.link
+        
+        #specific hack for UMich
+        if 'id' in event.keys(): self._id = event.id
         
         self._make_geo(event)
         
@@ -168,30 +172,32 @@ class foodE:
             DTSTART for start time
             LOCATION for building name and room number
         '''
-        
-        a = a.split('\n')
-        found = None
-        toRet = None
-        
-        for itm in a:      
-            if itm.find(extract)>=0:
-                toRet = itm.strip()
-                found = a.index(itm)
-                break
-        
-        if found != None:
-            for itm in a[found+1:]:
-                itmNew = itm.split(':')
-                if len(itmNew)>1:
-                    if itmNew[0].isupper():
-                        return toRet
+        try:
+            a = a.split('\n')
+            found = None
+            toRet = None
+            
+            for itm in a:      
+                if itm.find(extract)>=0:
+                    toRet = itm.strip()
+                    found = a.index(itm)
+                    break
+            
+            if found != None:
+                for itm in a[found+1:]:
+                    itmNew = itm.split(':')
+                    if len(itmNew)>1:
+                        if itmNew[0].isupper():
+                            return toRet
+                        else:
+                            toRet += itm.strip()
                     else:
                         toRet += itm.strip()
-                else:
-                    toRet += itm.strip()
+            
+            return toRet
+        except:
+            return None
         
-        return toRet
-    
     def _formatTIME(self,intime):
     
         '''format python timestruct into form to compare with ics time'''
@@ -208,21 +214,28 @@ class foodE:
             you only get the time events that are in the future
         '''
         
-        url = link + '.ics'
+        #specific hack for UMich
+        if 'umich' in self._id:
+            url = link + '-' + self._id.split('@')[0].split('-')[1] + '/feed/ical'
+        else:
+            url = link + '.ics'
+        
         myICS = requests.get(url).text #retrieve ics and save as string in myICS
        
         #clean up the stuff in the ics file
         myICS = myICS.split('BEGIN')
     
         for entry in myICS:
-            start = self._extractICS(entry,'DTSTART')
-            if start:
-                start = start.replace('DTSTART:','')
-                start = start.replace('DTSTART;VALUE=DATE:','')
-                reftime=self._formatTIME(intime.tm_year)+self._formatTIME(intime.tm_mon)+self._formatTIME(intime.tm_mday)
-                if int(reftime)==int(start[0:8]):
-                    myICS = entry
-                    
+            try:
+                start = self._extractICS(entry,'DTSTART')
+                if start:
+                    start = start.replace('DTSTART:','')
+                    start = start.replace('DTSTART;VALUE=DATE:','')
+                    reftime=self._formatTIME(intime.tm_year)+self._formatTIME(intime.tm_mon)+self._formatTIME(intime.tm_mday)
+                    if int(reftime)==int(start[0:8]):
+                        myICS = entry
+            except:
+                pass
         # UT is rate limiting us and pausing the ics downloads
         time.sleep(.5)
         
@@ -234,7 +247,6 @@ class foodE:
             takes in an self eg: test.foodEs[0] and gets the time (start and end) as well as the building and location
             from the ics file
         '''
-        
         self.ICSstr = self._get_ics(self.link,self.time)
         self.timestart = self._extractICS(self.ICSstr,'DTSTART')
         self.timeend = self._extractICS(self.ICSstr,'DTEND')
@@ -242,7 +254,7 @@ class foodE:
         self.locwithBUI = self._extractICS(self.ICSstr,'LOCATION') #location with building number
         self.descriptionICS = self._extractICS(self.ICSstr,'DESCRIPTION') #description of event from ics
         self.summaryICS = self._extractICS(self.ICSstr,'SUMMARY')
-                
+
 class Feeder:
     ''' Interact with RSS feed '''
     
@@ -275,16 +287,18 @@ if __name__ == '__main__':
     
     start = time.time()
     
-    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos']
- #   foods = ['food']
+#    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos']
+    foods = ['food']
     #need to fix regex
     #tiff's tiffs Tiffs
     
     #local calendar
-#    url = 'calendar.xml'
-    url = 'http://calendar.utexas.edu/calendar.xml'
+    url = 'calendar.xml'
+#    url = 'http://calendar.utexas.edu/calendar.xml'
 #    url = 'http://calendar.mit.edu/calendar.xml'
 #    url = 'http://events.umich.edu/day/rss'
+#    url = 'http://events.umich.edu/week/rss'
+#    url = 'michigan.xml'
     # michigan has quite different format and no geo, but it doesn't break
     
     feeder = Feeder(url, foods)
