@@ -81,20 +81,28 @@ def addtoICS(event,start,oldstring = ''):
     
     if start == 1 and len(oldstring)==0: #yes starting a new calendar
         fillme.append('BEGIN:VCALENDAR\nVERSION:2.0\nCALSCALE:GREGORIAN\nPRODID:iCalendar-Ruby\n')
+    
+    if event.summaryICS:
+        fillme.append('BEGIN:VEVENT\n')
         
-    fillme.append('BEGIN:VEVENT\n')
-    
-    if event.descriptionICS: fillme.append(event.descriptionICS+'\n')
-    if event.timeend: fillme.append(event.timeend+'\n')
-    if event.timestart: fillme.append(event.timestart+'\n')
-    if event.timestamp: fillme.append(event.timestamp+'\n')
-    if event.locwithBUI: fillme.append(event.locwithBUI+'\n')
-    if event.summaryICS: fillme.append(event.summaryICS+'\n')
-    
-    fillme.append('END:VEVENT\n')
+        if event.descriptionICS: fillme.append(event.descriptionICS+'\n')
+        if event.timeend:
+            if event.timeend in event.timestamp:
+                event.timestamp = event.timestamp.split(event.timeend)[0]
+            if event.timeend in event.timestart:
+                event.timestart = event.timestart.split(event.timeend)[0]
+            fillme.append(event.timeend+'\n')
+        if event.timestart: 
+            if event.timestart in event.timestamp:
+                event.timestamp = event.timestamp.split(event.timestart)[0]
+            fillme.append(event.timestart+'\n')
+        if event.timestamp: fillme.append(event.timestamp+'\n')
+        if event.locwithBUI: fillme.append(event.locwithBUI+'\n')
+        if event.summaryICS: fillme.append(event.summaryICS+'\n')
+        
+        fillme.append('END:VEVENT\n')
     
     newstring = ''.join(fillme)
-    
     return oldstring+newstring
 
 def writetoICS(string,filename='Food_Calendar.ics'):
@@ -172,6 +180,7 @@ class foodE:
             DTSTART for start time
             LOCATION for building name and room number
         '''
+
         try:
             a = a.split('\n')
             found = None
@@ -212,6 +221,7 @@ class foodE:
         get ics file from the link in the event
             ics on the link has all the times, so parse the ics file so that
             you only get the time events that are in the future
+        find ics event that is closest
         '''
         
         #specific hack for UMich
@@ -226,16 +236,21 @@ class foodE:
         myICS = myICS.split('BEGIN')
     
         for entry in myICS:
-            try:
-                start = self._extractICS(entry,'DTSTART')
-                if start:
-                    start = start.replace('DTSTART:','')
-                    start = start.replace('DTSTART;VALUE=DATE:','')
-                    reftime=self._formatTIME(intime.tm_year)+self._formatTIME(intime.tm_mon)+self._formatTIME(intime.tm_mday)
-                    if int(reftime)==int(start[0:8]):
-                        myICS = entry
-            except:
-                pass
+            #try:
+            start = self._extractICS(entry,'DTSTART')
+            if start:
+                start = start.split(':')
+                del(start[0])
+                start = start[0]
+                reftime=self._formatTIME(intime.tm_year)+self._formatTIME(intime.tm_mon)+self._formatTIME(intime.tm_mday)
+                if int(reftime)<=int(start[0:8]):
+                    myICS = entry
+                    break
+                
+        if type(myICS)==list:
+            myICS = ''#.join(myICS)
+            #except:
+                #pass
         # UT is rate limiting us and pausing the ics downloads
         time.sleep(.5)
         
@@ -293,11 +308,11 @@ if __name__ == '__main__':
     #tiff's tiffs Tiffs
     
     #local calendar
-    url = 'calendar.xml'
+#    url = 'calendar.xml'
 #    url = 'http://calendar.utexas.edu/calendar.xml'
 #    url = 'http://calendar.mit.edu/calendar.xml'
 #    url = 'http://events.umich.edu/day/rss'
-#    url = 'http://events.umich.edu/week/rss'
+    url = 'http://events.umich.edu/week/rss'
 #    url = 'michigan.xml'
     # michigan has quite different format and no geo, but it doesn't break
     
@@ -311,6 +326,7 @@ if __name__ == '__main__':
     
     if shouldCalendar.upper()=='YES':
         for event in feeder.foodEs:
+            #print(event.ICSstr)
             print(event.summaryICS)
             summ += 1
             print(summ)
