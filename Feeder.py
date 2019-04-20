@@ -181,10 +181,12 @@ class foodE:
             LOCATION for building name and room number
         '''
 
-        try:
+        toRet = None
+        
+        if type(a)==str:
             a = a.split('\n')
             found = None
-            toRet = None
+            
             
             for itm in a:      
                 if itm.find(extract)>=0:
@@ -203,9 +205,7 @@ class foodE:
                     else:
                         toRet += itm.strip()
             
-            return toRet
-        except:
-            return None
+        return toRet
         
     def _formatTIME(self,intime):
     
