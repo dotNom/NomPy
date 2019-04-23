@@ -4,6 +4,52 @@ import requests
 from bs4 import BeautifulSoup as bs4
 import time
 
+def main(url,foods):
+    
+    start = time.time()
+    
+#    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos']
+#    foods = ['food']
+    #need to fix regex
+    #tiff's tiffs Tiffs
+    
+    #local calendar
+#    url = 'calendar.xml'
+#    url = 'http://calendar.utexas.edu/calendar.xml'
+#    url = 'http://calendar.mit.edu/calendar.xml'
+#    url = 'http://events.umich.edu/day/rss'
+#    url = 'http://events.umich.edu/week/rss'
+#    url = 'michigan.xml'
+    # michigan has quite different format and no geo, but it doesn't break
+    
+    feeder = Feeder(url, foods)
+    
+    #get full calendar of all events found
+    
+    shouldCalendar = 'yes' #Do you want calendar of events?:'yes' or 'no'. 
+    toStart = 0
+    summ = 0
+    
+    if shouldCalendar.upper()=='YES':
+        for event in feeder.foodEs:
+            #print(event.ICSstr)
+            print(event.summaryICS)
+            summ += 1
+            print(summ)
+            if toStart == 0: 
+                string = addtoICS(event,1)
+                toStart += 1
+            else:
+                string = addtoICS(event,0,string)
+                                  
+        
+        writetoICS(string,'CollatedICS.ics')
+        
+    end = time.time()
+    
+    print('runtime:',end-start,'s')
+    return feeder
+
 def checkforRSS(linklist,debugMode=1):
     
     '''
@@ -281,7 +327,7 @@ class Feeder:
         if 'etag' in self.feed.keys(): self.etag = self.feed.etag
         self.make_foodEs()
         
-    def update(self):
+    def update(self,url):
         if hasattr(self, 'etag'):
             feed_temp = feedparser.parse(self.url, self.etag)
             if feed_temp.status == 304:
@@ -299,47 +345,4 @@ class Feeder:
         self.foodEs = [foodE(event, self.foods) for event in self.feed.entries 
                        if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.description)]
 
-if __name__ == '__main__':
-    
-    start = time.time()
-    
-    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos']
-#    foods = ['food']
-    #need to fix regex
-    #tiff's tiffs Tiffs
-    
-    #local calendar
-    url = 'calendar.xml'
-#    url = 'http://calendar.utexas.edu/calendar.xml'
-#    url = 'http://calendar.mit.edu/calendar.xml'
-#    url = 'http://events.umich.edu/day/rss'
-#    url = 'http://events.umich.edu/week/rss'
-#    url = 'michigan.xml'
-    # michigan has quite different format and no geo, but it doesn't break
-    
-    feeder = Feeder(url, foods)
-    
-    #get full calendar of all events found
-    
-    shouldCalendar = 'yes' #Do you want calendar of events?:'yes' or 'no'. 
-    toStart = 0
-    summ = 0
-    
-    if shouldCalendar.upper()=='YES':
-        for event in feeder.foodEs:
-            #print(event.ICSstr)
-            print(event.summaryICS)
-            summ += 1
-            print(summ)
-            if toStart == 0: 
-                string = addtoICS(event,1)
-                toStart += 1
-            else:
-                string = addtoICS(event,0,string)
-                                  
-        
-        writetoICS(string,'CollatedICS.ics')
-        
-    end = time.time()
-    
-    print('runtime:',end-start,'s')
+#if __name__ == '__main__':
