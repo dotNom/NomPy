@@ -1,21 +1,30 @@
 import plotly.offline as py
 import plotly.graph_objs as go
 import math as m
-#import accessGUI as gui
 import textwrap
 import pandas as pd
 
-plotOnly = False
-
 def plotMap(events,mapbox_access_token):
-    tableData = {'Event Name':[],'Date':[],'Time':[],'Location':[],'Link':[]}
+    
+    if mapbox_access_token == 0:
+        tableOnly = True
+    
+    tableData = {'Event Name':[],'Date':[],'Time':[],'Location':[]}
+    csvData = {'Event Name':[],'Date':[],'Time':[],'Location':[],'Link':[]}
     def Listattributes(event):
         if hasattr(event, 'title'):
             date = event.title.split(': ')[0]
-            tableData['Event Name'].append(event.title.split(date)[1][2:])
+            if hasattr(event, 'link'):
+                titleText = '<a href="' + event.link + '">' + event.title.split(date)[1][2:] +'</a>'
+                tableData['Event Name'].append(titleText)
+                csvData['Link'].append(event.link)
+            else:
+                tableData['Event Name'].append(event.title.split(date)[1][2:])
             tableData['Date'].append(date)
+            csvData['Event Name'].append(event.title.split(date)[1][2:])
         else:
             tableData['Event Name'].append('')
+            csvData['Event Name'].append('')
             tableData['Date'].append('')
             
         if hasattr(event, 'locwithBUI'):
@@ -28,12 +37,15 @@ def plotMap(events,mapbox_access_token):
         else:
             tableData['Time'].append('')
             
-        if hasattr(event, 'link'):
-            linkText = '<a href="' + event.link + '">Link to Event</a>'
-            tableData['Link'].append(linkText)
-        else:
-            tableData['Link'].append('')
+#        if hasattr(event, 'link'):
+#            linkText = '<a href="' + event.link + '">Link to Event</a>'
+#            tableData['Link'].append(linkText)
+#        else:
+#            tableData['Link'].append('')
             
+    csvData['Date'] = tableData['Date']        
+    csvData['Time'] = tableData['Time']        
+    csvData['Location'] = tableData['Location']        
     mapData = []
     lat = []
     lon = []
@@ -41,19 +53,9 @@ def plotMap(events,mapbox_access_token):
     geocount = 0
     hours = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
     for item in events: 
-        if hasattr(item, 'geo'):
-            geocount += 1
-            geo1,geo2 = item.geo
-            lat.append(geo1)
-            lon.append(geo2)
-            formatted_text = ''
-            if hasattr(item, 'title'):
-                wrapper = textwrap.TextWrapper(width=30)
-                wrapped_text = wrapper.fill(text=item.title)
-                wrapped_text = wrapped_text.replace('\n','<br>')
-                formatted_text = 'Event Name:<br>'
-                formatted_text += wrapped_text + '<br><br>'
-            if hasattr(item, 'timestart') and hasattr(item,'timeend'):
+        timeStr = ''
+        if hasattr(item, 'timestart') and hasattr(item,'timeend'): 
+            if item.timeend is not None:
                 Starttime = item.timestart.split('T')[-1]
                 Starttime = Starttime.split('Z')[0]
                 Starthour = int(Starttime[0:2])-5
@@ -69,12 +71,32 @@ def plotMap(events,mapbox_access_token):
                 Endtime = str(Endhour)+':'+Endminute
                 
                 timeStr = Starttime + '-' + Endtime
-                
+            else: 
+                if 'VALUE=DATE' in item.timestart:
+                    timeStr = 'All Day'
+            setattr(item,'timestr',timeStr)
+            
+        if hasattr(item, 'geo'):
+            geocount += 1
+            geo1,geo2 = item.geo
+            lat.append(geo1)
+            lon.append(geo2)
+            formatted_text = ''
+            if hasattr(item, 'title'):
+                wrapper = textwrap.TextWrapper(width=30)
+                wrapped_text = wrapper.fill(text=item.title)
+                wrapped_text = wrapped_text.replace('\n','<br>')
+                formatted_text = 'Event Name:<br>'
+                formatted_text += wrapped_text + '<br><br>'
+            
+            if timeStr:
                 formatted_text += 'Time: ' + timeStr + '<br><br>'
-                setattr(item,'timestr',timeStr)
+                
             text.append(formatted_text)
         Listattributes(item)
                 
+    if geocount == 0:
+        tableOnly = True
     
     centerLat = (max([float(i) for i in lat])+min([float(i) for i in lat]))/2
     centerLon = (max([float(i) for i in lon])+min([float(i) for i in lon]))/2
@@ -117,16 +139,17 @@ def plotMap(events,mapbox_access_token):
         zoomLvls = [13]
     
     df = pd.DataFrame(tableData)
+    df2 = pd.DataFrame(csvData)
     
     plotTable = go.Table(
-        columnorder = [1,2,3,4,5],
-        columnwidth = [3,2,2,3,2],
+        columnorder = [1,2,3,4],
+        columnwidth = [3,2,2,3],
         domain=dict(x=[0.55, 1.0],
                     y=[0, 1]),
-        header=dict(values=['<b>Event Name</b>','<b>Date</b>','<b>Time</b>','<b>Location</b>','<b>Link</b>'],
+        header=dict(values=['<b>Event Name</b>','<b>Date</b>','<b>Time</b>','<b>Location</b>'],
                     fill = dict(color='#C2D4FF'),
                     align = ['left'] * 5),
-        cells=dict(values=[df['Event Name'],df.Date,df.Time,df.Location,df.Link],
+        cells=dict(values=[df['Event Name'],df.Date,df.Time,df.Location],
                    fill = dict(color='#F5F8FF'),
                    align = ['left'] * 5))
     
@@ -141,7 +164,7 @@ def plotMap(events,mapbox_access_token):
         showlegend=False            
         )
     
-    if plotOnly:   
+    if tableOnly:   
         plotTable.domain=dict(x=[0, 1.0],y=[0, 1])
         fig = dict(data=[plotTable], layout=layout)
     else:
@@ -158,7 +181,8 @@ def plotMap(events,mapbox_access_token):
                         y=[0, 1.0]))    
         fig = dict(data=data, layout=layout)
     
-    #print(geocount)
-    
-    df.to_csv(r'Free_Food_Events.csv',index = False)
+    df2.to_csv(r'Free_Food_Events.csv',index = False)
     py.plot(fig, filename='Find_Free_Food.html')
+    
+#if __name__ == '__main__':
+#    plotMap(foodEvents,mapbox_access_token)
