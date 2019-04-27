@@ -4,10 +4,17 @@ import math as m
 import textwrap
 import pandas as pd
 
-def plotMap(events,mapbox_access_token):
+class foodEvent():
+    def __init__(self):
+        self.loc = []
+        self.title = []
+
+def plotMap(events,mapbox_access_token,csvFlag):
     
     if mapbox_access_token == 0:
         tableOnly = True
+    else:
+        tableOnly = False
     
     tableData = {'Event Name':[],'Date':[],'Time':[],'Location':[]}
     csvData = {'Event Name':[],'Date':[],'Time':[],'Location':[],'Link':[]}
@@ -20,6 +27,7 @@ def plotMap(events,mapbox_access_token):
                 csvData['Link'].append(event.link)
             else:
                 tableData['Event Name'].append(event.title.split(date)[1][2:])
+                csvData['Link'].append('')
             tableData['Date'].append(date)
             csvData['Event Name'].append(event.title.split(date)[1][2:])
         else:
@@ -97,10 +105,30 @@ def plotMap(events,mapbox_access_token):
                 
     if geocount == 0:
         tableOnly = True
-    
-    centerLat = (max([float(i) for i in lat])+min([float(i) for i in lat]))/2
-    centerLon = (max([float(i) for i in lon])+min([float(i) for i in lon]))/2
+    else:    
+        centerLat = (max([float(i) for i in lat])+min([float(i) for i in lat]))/2
+        centerLon = (max([float(i) for i in lon])+min([float(i) for i in lon]))/2
         
+        # Get map area bounded by points and make the map 20% bigger
+        actLatDiff = (max([abs(float(i)) for i in lat])-min([abs(float(i)) for i in lat]))*1.2
+        actLonDiff = (max([abs(float(i)) for i in lon])-min([abs(float(i)) for i in lon]))*1.2
+        
+        
+        zoomLvls = []
+        # Use logrithmic functions to set the zoom level
+        if actLatDiff > 0:
+            zoomLat = -1.44434543954145*m.log(actLatDiff)+8.96199052263417
+            zoomLvls.append(zoomLat)
+        if actLonDiff > 0:
+            zoomLon = -1.44434543954145*m.log(actLonDiff)+8.96199052263417
+            zoomLvls.append(zoomLon)
+        
+        if len(zoomLvls) == 0: # Default zoom level
+            zoomLvls = [13]
+        
+    
+    
+    
     data = []
     mapData = dict(
             hoverlabel = go.scattermapbox.Hoverlabel(
@@ -120,24 +148,7 @@ def plotMap(events,mapbox_access_token):
             type = 'scattermapbox'
             )
     data.append(mapData)
-    
-    # Get map area bounded by points and make the map 20% bigger
-    actLatDiff = (max([abs(float(i)) for i in lat])-min([abs(float(i)) for i in lat]))*1.2
-    actLonDiff = (max([abs(float(i)) for i in lon])-min([abs(float(i)) for i in lon]))*1.2
-    
-    
-    zoomLvls = []
-    # Use logrithmic functions to set the zoom level
-    if actLatDiff > 0:
-        zoomLat = -1.454*m.log(actLatDiff)+8.3928
-        zoomLvls.append(zoomLat)
-    if actLonDiff > 0:
-        zoomLon = -1.452*m.log(actLonDiff)+9.3217
-        zoomLvls.append(zoomLon)
-    
-    if len(zoomLvls) == 0: # Default zoom level
-        zoomLvls = [13]
-    
+ 
     df = pd.DataFrame(tableData)
     df2 = pd.DataFrame(csvData)
     
@@ -175,14 +186,17 @@ def plotMap(events,mapbox_access_token):
                     lat=centerLat,
                     lon=centerLon
                 ),
-                pitch=0,         
+                pitch=0,
                 zoom = min(zoomLvls),
                 domain=dict(x=[0, 0.53],
                         y=[0, 1.0]))    
         fig = dict(data=data, layout=layout)
     
-    df2.to_csv(r'Free_Food_Events.csv',index = False)
-    py.plot(fig, filename='Find_Free_Food.html')
+    if csvFlag == 1:
+        df2.to_csv(r'Free_Food_Events.csv',index = False)        
+        py.plot(fig, filename='Free_Food.html')
+    else:
+        py.plot(fig, filename='Filtered_Free_Food.html')
     
 #if __name__ == '__main__':
-#    plotMap(foodEvents,mapbox_access_token)
+#    plotMap(events,mapbox_access_token,0)
