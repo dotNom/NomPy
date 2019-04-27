@@ -5,6 +5,10 @@ import json
 import webbrowser
     
 class getUserInfo(simpledialog.Dialog):
+    '''
+    Class for the mapbox access token GUI. This gets initialized only if there 
+    isn't a config.json file in the current directory
+    '''
     def __init__(self):
         self.iscancelled = 1
         self.tableOnly = False
@@ -38,6 +42,10 @@ class getUserInfo(simpledialog.Dialog):
 
         
 def return_token():
+    '''
+    Return the mapbox access token. If the user has selected to show the table
+    only, then return 0 instead
+    '''
     try:
         fh = open('config.json','r')
         with fh as json_file:  
