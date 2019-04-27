@@ -2,6 +2,7 @@ import Feeder
 import EventMap
 import accessGUI as gui
 import settingsGUI as sgui
+import filterGUI
 
 def yeartime(event):
     '''
@@ -53,4 +54,6 @@ temp = sorted(temp,key = lambda x: x[1])
 foodEvents = [event[0] for event in temp]
 
 #Plot events
-EventMap.plotMap(foodEvents,mapbox_access_token)
+EventMap.plotMap(foodEvents,mapbox_access_token,1)
+
+filteredEvents = filterGUI.return_filter(foodEvents,mapbox_access_token,0)
