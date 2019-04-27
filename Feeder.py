@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup as bs4
 import time
 
-def main(url,foods):
+def main(url,foods,shouldCalendar):
     
     start = time.time()
     
@@ -26,11 +26,13 @@ def main(url,foods):
     
     #get full calendar of all events found
     
-    shouldCalendar = 'yes' #Do you want calendar of events?:'yes' or 'no'. 
+    #shouldCalendar Do you want calendar of events?:'yes' or 'no'. 
     toStart = 0
     summ = 0
+    string = ''
     
     if shouldCalendar.upper()=='YES':
+        print("Making Calendar")
         for event in feeder.foodEs:
             #print(event.ICSstr)
             print(event.summaryICS)
@@ -42,15 +44,34 @@ def main(url,foods):
             else:
                 string = addtoICS(event,0,string)
                                   
-        
-        writetoICS(string,'CollatedICS.ics')
+        if string:
+            writetoICS(string,'CollatedICS.ics')
         
     end = time.time()
     
     print('runtime:',end-start,'s')
     return feeder
 
-def checkforRSS(linklist,debugMode=1):
+def validlink(link,debugMode=1):
+    '''
+    Function takes in a single xml or rss link and see if it exists
+    '''
+    
+    isValid = False
+    
+    try:
+        requests.head(link)
+        isValid = True        
+        if debugMode == 1:
+            print('ValidURL')
+
+    except:
+         if debugMode == 1:
+            print('Exception raised: InvalidURL')
+            
+    return isValid
+    
+def findRSSonPAGE(linklist,debugMode=1):
     
     '''
     Function takes in a single link or a set of links to find if there is an rss feed
@@ -104,9 +125,9 @@ def checkforRSS(linklist,debugMode=1):
                         print('KeyError because No href key')
             
                 ctr += 1
-        
-        except requests.exceptions.InvalidURL: 
-            if debugMode == 1:
+
+        except:
+             if debugMode == 1:
                 print('Exception raised: InvalidURL')
                 
         ct += 1
@@ -115,6 +136,7 @@ def checkforRSS(linklist,debugMode=1):
         return isRss[0], RssLink_s[0]
     else:
         return isRss, RssLink_s
+
 
 def addtoICS(event,start,oldstring = ''):
     
