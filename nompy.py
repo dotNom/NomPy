@@ -16,7 +16,7 @@ def yeartime(event):
 defaultALL = ['http://calendar.utexas.edu/calendar.xml','http://calendar.mit.edu/calendar.xml','http://events.umich.edu/day/rss','http://events.umich.edu/week/rss']
 a = sgui.setGUI(defaultALL)    
 print('INITIAL SETTINGS FROM GUI:')
-print(a.doCalendar + ' ,Calendar', a.foodToSearch, a.URLlist, sep = '\n')
+print(a.doCalendar + ' Calendar', a.foodToSearch, a.URLlist, sep = '\n')
 
 foods = a.foodToSearch
 
