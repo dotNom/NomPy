@@ -416,15 +416,3 @@ class Feeder:
                 self.track[1] = foodtile.ext
                 self.track[2] = foodtile.ICSyes
                 print('UPDATE: event #',self.track[0],' extension ',self.track[1],' do ICS ',self.track[2])
-
-
-#if __name__ == '__main__':
-foods = ['food']
-#    url = 'calendar.xml'
-#url = 'http://calendar.utexas.edu/calendar.xml'
-#    url = 'http://calendar.mit.edu/calendar.xml'
-#url = 'http://events.umich.edu/week/rss'
-url = 'https://law.utexas.edu/calendar/feed/rss/'
-# michigan has quite different format and no geo, but it doesn't break
-print(url)
-feeder = main(url,foods,'no')
