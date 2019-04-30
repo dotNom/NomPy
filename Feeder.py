@@ -10,15 +10,15 @@ def main(url,foods,shouldCalendar):
     
 #    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos']
 #    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos', 'breakfast', 'lunch', 'dinner', 'luncheon']
-    foods = ['food']
+#    foods = ['food']
     #need to fix regex
     #tiff's tiffs Tiffs
     
     #local calendar
 #    url = 'calendar.xml'
 #    url = 'http://calendar.utexas.edu/calendar.xml'
-#    url = 'https://law.utexas.edu/calendar/feed/rss/'
-#    url = 'https://music.utexas.edu/events/calendar.xml'
+#    https://law.utexas.edu/calendar/feed/rss/
+#    https://music.utexas.edu/events/calendar.xml
 #    url = 'http://calendar.mit.edu/calendar.xml'
 #    url = 'http://events.umich.edu/day/rss'
 #    url = 'http://events.umich.edu/week/rss'
@@ -238,18 +238,18 @@ class foodE:
         if self.link:
             if self.track==0:
                 print('Checking for ics in ', self.link,'\n')
-                ynICS, ICSlink = findRSSonPAGE(self.link,'.ics','/ical','ics/',debugMode=1)
+                ynICS, ICSlink = findRSSonPAGE(self.link,'.ics','/ical','/ics',debugMode=1)
                 if ynICS:
                     print('In ',self.link,'  find ics extra')
-                    if self.link in ICSlink[0]:
-                        self.ext = ICSlink[0].split(self.link)[1]
+                    if self.link.split(':')[1] in ICSlink[0].split(':')[1]:
+                        self.ext = ICSlink[0].split(':')[1].split(self.link.split(':')[1])[1]
                         self.ICSyes = 1
                         print('ics extra: ', self.ext,'\n')
                     elif 'umich' in self._id:
                         self.ICSyes = 1
                                
-                self._getICSprops()
-                print('Done ics')
+            self._getICSprops()
+            print('Done ics')
      
     #maybe better way to do init
     def _make_geo(self, event):
@@ -416,3 +416,16 @@ class Feeder:
                 self.track[1] = foodtile.ext
                 self.track[2] = foodtile.ICSyes
                 print('UPDATE: event #',self.track[0],' extension ',self.track[1],' do ICS ',self.track[2])
+
+'''
+#if __name__ == '__main__':
+foods = ['food']
+#    url = 'calendar.xml'
+url = 'http://calendar.utexas.edu/calendar.xml'
+#    url = 'http://calendar.mit.edu/calendar.xml'
+#url = 'http://events.umich.edu/week/rss'
+#url = 'https://law.utexas.edu/calendar/feed/rss/'
+# michigan has quite different format and no geo, but it doesn't break
+print(url)
+feeder = main(url,foods,'yes')
+'''
