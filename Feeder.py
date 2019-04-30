@@ -16,8 +16,8 @@ def main(url,foods,shouldCalendar):
     #local calendar
 #    url = 'calendar.xml'
 #    url = 'http://calendar.utexas.edu/calendar.xml'
-#    https://law.utexas.edu/calendar/feed/rss/
-#    https://music.utexas.edu/events/calendar.xml
+#    url = 'https://law.utexas.edu/calendar/feed/rss/'
+#    url = 'https://music.utexas.edu/events/calendar.xml'
 #    url = 'http://calendar.mit.edu/calendar.xml'
 #    url = 'http://events.umich.edu/day/rss'
 #    url = 'http://events.umich.edu/week/rss'
