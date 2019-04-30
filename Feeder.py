@@ -8,7 +8,7 @@ def main(url,foods,shouldCalendar):
     
     start = time.time()
     
-#    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos']
+#    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos', 'breakfast', 'lunch', 'dinner', 'luncheon']
 #    foods = ['food']
     #need to fix regex
     #tiff's tiffs Tiffs
@@ -16,6 +16,8 @@ def main(url,foods,shouldCalendar):
     #local calendar
 #    url = 'calendar.xml'
 #    url = 'http://calendar.utexas.edu/calendar.xml'
+#    https://law.utexas.edu/calendar/feed/rss/
+#    https://music.utexas.edu/events/calendar.xml
 #    url = 'http://calendar.mit.edu/calendar.xml'
 #    url = 'http://events.umich.edu/day/rss'
 #    url = 'http://events.umich.edu/week/rss'
@@ -220,7 +222,7 @@ class foodE:
         if 'published_parsed' in event.keys(): self.time = event.published_parsed #not sure if we should use published_parsed or updated_parsed
         if 'link' in event.keys(): self.link = event.link
         
-        #specific hack for UMich
+        # hack for UMich and UTlaw
         if 'id' in event.keys(): self._id = event.id
         
         self._make_geo(event)
@@ -296,6 +298,9 @@ class foodE:
         #specific hack for UMich
         if 'umich' in self._id:
             url = link + '-' + self._id.split('@')[0].split('-')[1] + '/feed/ical'
+        #specific hack for UT law
+        elif 'law.utexas' in self._id:
+            url = link + 'ics/'
         else:
             url = link + '.ics'
         
@@ -365,6 +370,6 @@ class Feeder:
                 
     def make_foodEs(self):
         self.foodEs = [foodE(event, self.foods) for event in self.feed.entries 
-                       if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.description)]
+                       if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.summary)]
 
 #if __name__ == '__main__':
