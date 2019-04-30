@@ -26,9 +26,9 @@ def plotMap(events,mapbox_access_token,csvFlag):
     tableData = {'Event Name':[],'Date':[],'Time':[],'Location':[]}
     csvData = {'Event Name':[],'Date':[],'Time':[],'Location':[],'Link':[]}
     def Listattributes(event):
-        if hasattr(event, 'title'):
+        if event.title:
             date = event.title.split(': ')[0]
-            if hasattr(event, 'link'):
+            if event.link:
                 titleText = '<a href="' + event.link + '">' + event.title.split(date)[1][2:] +'</a>'
                 tableData['Event Name'].append(titleText)
                 csvData['Link'].append(event.link)
@@ -42,7 +42,7 @@ def plotMap(events,mapbox_access_token,csvFlag):
             csvData['Event Name'].append('')
             tableData['Date'].append('')
             
-        if hasattr(event, 'locwithBUI'):
+        if event.locwithBUI:
             tableData['Location'].append(event.locwithBUI.split('LOCATION:')[1].replace('\\',''))
         else:
             tableData['Location'].append('')
