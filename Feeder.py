@@ -34,22 +34,21 @@ def main(url,foods,shouldCalendar):
     summ = 0
     string = ''
     
-    if feeder.track[2]==1:
-        if shouldCalendar.upper()=='YES':
-            print("Making Calendar")
-            for event in feeder.foodEs:
-                #print(event.ICSstr)
-                print(event.summaryICS)
-                summ += 1
-                print(summ)
-                if toStart == 0: 
-                    string = addtoICS(event,1)
-                    toStart += 1
-                else:
-                    string = addtoICS(event,0,string)
-                                      
-            if string:
-                writetoICS(string,'CollatedICS.ics')
+    if shouldCalendar.upper()=='YES':
+        print("Making Calendar")
+        for event in feeder.foodEs:
+            #print(event.ICSstr)
+            print(event.summaryICS)
+            summ += 1
+            print(summ)
+            if toStart == 0: 
+                string = addtoICS(event,1)
+                toStart += 1
+            else:
+                string = addtoICS(event,0,string)
+                                  
+        if string:
+            writetoICS(string,'CollatedICS.ics')
         
     end = time.time()
     
