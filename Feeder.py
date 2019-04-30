@@ -374,7 +374,7 @@ class foodE:
             self.descriptionICS = self._extractICS(self.ICSstr,'DESCRIPTION') #description of event from ics
             self.summaryICS = self._extractICS(self.ICSstr,'SUMMARY')
         else:
-            self.timestart = 'DTSTART:' + self._calTIME(self.time)
+            if self.time: self.timestart = 'DTSTART:' + self._calTIME(self.time)
             self.timestamp = 'DTSTAMP:' + self._calTIME(time.gmtime())
             self.summaryICS = 'SUMMARY:' + self.title
             self.descriptionICS = 'DESCRIPTION:' + ''.join(''.join(self.summary.split('<a')[0].split('</p>')).split('<p>'))
@@ -409,14 +409,16 @@ class Feeder:
         self.foodEs = []
         
         for event in self.feed.entries:
-            if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.summary):
-                foodtile = foodE(event, self.foods, self.track)
-                self.foodEs.append(foodtile)
-                self.track[0] += 1
-                self.track[1] = foodtile.ext
-                self.track[2] = foodtile.ICSyes
-                print('UPDATE: event #',self.track[0],' extension ',self.track[1],' do ICS ',self.track[2])
-
+            try:
+                if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.summary):
+                    foodtile = foodE(event, self.foods, self.track)
+                    self.foodEs.append(foodtile)
+                    self.track[0] += 1
+                    self.track[1] = foodtile.ext
+                    self.track[2] = foodtile.ICSyes
+                    print('UPDATE: event #',self.track[0],' extension ',self.track[1],' do ICS ',self.track[2])
+            except:
+                print('bad event')
 '''
 #if __name__ == '__main__':
 foods = ['food']
