@@ -8,8 +8,9 @@ def main(url,foods,shouldCalendar):
     
     start = time.time()
     
+#    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos']
 #    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos', 'breakfast', 'lunch', 'dinner', 'luncheon']
-#    foods = ['food']
+    foods = ['food']
     #need to fix regex
     #tiff's tiffs Tiffs
     
@@ -73,7 +74,7 @@ def validlink(link,debugMode=1):
             
     return isValid
     
-def findRSSonPAGE(linklist,debugMode=1):
+def findRSSonPAGE(linklist,*string,debugMode=1):
     
     '''
     Function takes in a single link or a set of links to find if there is an rss feed
@@ -101,26 +102,29 @@ def findRSSonPAGE(linklist,debugMode=1):
             r = requests.get(link).text
         
             rtxt = bs4(r,'lxml')
-            
+
             ctr = 0
             
             for ij in rtxt.findAll("a"):
             	
                 Attr = ij.attrs
+               
                 try:
                     Attrhref = Attr['href']
+                    
                     if Attrhref:
-                        if Attrhref.find('xml')>=0 or Attrhref.find('rss')>=0:
-                        
-                            if debugMode == 1:
-                                if 'title' in Attr:
-                                    print(ctr,':',Attrhref,Attr['title'])
-                                else:
-                                    print(ctr,':',Attr)
-                                    
-                            isRss[ct] = True
-                            if Attrhref not in RssLink_s[ct]:
-                                RssLink_s[ct].append(Attrhref)
+                        for entr in string:
+                            if Attrhref.find(entr)>=0:
+                            
+                                if debugMode == 1:
+                                    if 'title' in Attr:
+                                        print(ctr,':',Attrhref,Attr['title'])
+                                    else:
+                                        print(ctr,':',Attr)
+                                        
+                                isRss[ct] = True
+                                if Attrhref not in RssLink_s[ct]:
+                                    RssLink_s[ct].append(Attrhref)
                             
                 except KeyError:
                     if debugMode == 1:
@@ -200,7 +204,7 @@ class foodE:
         
         '''
         
-    def __init__(self, event, foods):
+    def __init__(self, event, foods,track):
         '''
         basic init
         make smarter/more robust later
@@ -214,6 +218,10 @@ class foodE:
         icsnames = ['timestart', 'timeend', 'timestamp', 'locwithBUI', 'descriptionICS', 'summaryICS']
         [setattr(self, name, None) for name in names + icsnames]
 
+        self.track = track[0]
+        self.ext = track[1]
+        self.ICSyes = track[2]
+        
 #        elements = ['title', 'summary', 'geo_lat', 'geo_long', 'updated_parsed', 'link']
 #        [self._ccreate(event, element, name) for name, element in zip(names,elements)]
         
@@ -222,15 +230,27 @@ class foodE:
         if 'published_parsed' in event.keys(): self.time = event.published_parsed #not sure if we should use published_parsed or updated_parsed
         if 'link' in event.keys(): self.link = event.link
         
-        # hack for UMich and UTlaw
+        #specific hack for UMich and UTlaw
         if 'id' in event.keys(): self._id = event.id
         
         self._make_geo(event)
         
         if self.link:
-            self._getICSprops()
-            print('got ics')
-        
+            if self.track==0:
+                print('Checking for ics in ', self.link,'\n')
+                ynICS, ICSlink = findRSSonPAGE(self.link,'.ics','/ical','ics/',debugMode=1)
+                if ynICS:
+                    print('In ',self.link,'  find ics extra')
+                    if self.link in ICSlink[0]:
+                        self.ext = ICSlink[0].split(self.link)[1]
+                        self.ICSyes = 1
+                        print('ics extra: ', self.ext,'\n')
+                    elif 'umich' in self._id:
+                        self.ICSyes = 1
+                               
+                self._getICSprops()
+                print('Done ics')
+     
     #maybe better way to do init
     def _make_geo(self, event):
         if hasattr(event, 'geo_lat'):
@@ -286,6 +306,14 @@ class foodE:
         if len(intime)==1: intime='0'+intime
         return intime
     
+    def _calTIME(self,intime):
+        '''
+        returns time in right format for display in calendar
+        '''
+        timesday = self._formatTIME(intime.tm_year)+self._formatTIME(intime.tm_mon)+self._formatTIME(intime.tm_mday)
+        timesday += 'T' + self._formatTIME(intime.tm_hour)+self._formatTIME(intime.tm_min)+self._formatTIME(intime.tm_sec)
+        return timesday
+        
     def _get_ics(self, link, intime):
         
         '''
@@ -295,7 +323,7 @@ class foodE:
         find ics event that is closest
         '''
         
-        #specific hack for UMich
+        #specific hack for UMich 
         if 'umich' in self._id:
             url = link + '-' + self._id.split('@')[0].split('-')[1] + '/feed/ical'
         #specific hack for UT law
@@ -336,14 +364,21 @@ class foodE:
             takes in an self eg: test.foodEs[0] and gets the time (start and end) as well as the building and location
             from the ics file
         '''
-        self.ICSstr = self._get_ics(self.link,self.time)
-        self.timestart = self._extractICS(self.ICSstr,'DTSTART')
-        self.timeend = self._extractICS(self.ICSstr,'DTEND')
-        self.timestamp = self._extractICS(self.ICSstr,'DTSTAMP')
-        self.locwithBUI = self._extractICS(self.ICSstr,'LOCATION') #location with building number
-        self.descriptionICS = self._extractICS(self.ICSstr,'DESCRIPTION') #description of event from ics
-        self.summaryICS = self._extractICS(self.ICSstr,'SUMMARY')
-
+        
+        if self.ICSyes == 1:
+            self.ICSstr = self._get_ics(self.link,self.time)
+            self.timestart = self._extractICS(self.ICSstr,'DTSTART')
+            self.timeend = self._extractICS(self.ICSstr,'DTEND')
+            self.timestamp = self._extractICS(self.ICSstr,'DTSTAMP')
+            self.locwithBUI = self._extractICS(self.ICSstr,'LOCATION') #location with building number
+            self.descriptionICS = self._extractICS(self.ICSstr,'DESCRIPTION') #description of event from ics
+            self.summaryICS = self._extractICS(self.ICSstr,'SUMMARY')
+        else:
+            self.timestart = 'DTSTART:' + self._calTIME(self.time)
+            self.timestamp = 'DTSTAMP:' + self._calTIME(time.gmtime())
+            self.summaryICS = 'SUMMARY:' + self.title
+            self.descriptionICS = 'DESCRIPTION:' + ''.join(''.join(self.summary.split('<a')[0].split('</p>')).split('<p>'))
+            
 class Feeder:
     ''' Interact with RSS feed '''
     
@@ -352,7 +387,9 @@ class Feeder:
         self.foods = foods
         self.feed = feedparser.parse(url)
         if 'etag' in self.feed.keys(): self.etag = self.feed.etag
+        self.track = [0,'',0]
         self.make_foodEs()
+        
         
     def update(self,url):
         if hasattr(self, 'etag'):
@@ -369,7 +406,13 @@ class Feeder:
             self.make_foodEs()
                 
     def make_foodEs(self):
-        self.foodEs = [foodE(event, self.foods) for event in self.feed.entries 
-                       if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.summary)]
-
-#if __name__ == '__main__':
+        self.foodEs = []
+        
+        for event in self.feed.entries:
+            if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.summary):
+                foodtile = foodE(event, self.foods, self.track)
+                self.foodEs.append(foodtile)
+                self.track[0] += 1
+                self.track[1] = foodtile.ext
+                self.track[2] = foodtile.ICSyes
+                print('UPDATE: event #',self.track[0],' extension ',self.track[1],' do ICS ',self.track[2])
