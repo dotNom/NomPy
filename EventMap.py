@@ -3,6 +3,7 @@ import plotly.graph_objs as go
 import math as m
 import textwrap
 import pandas as pd
+import requests
 
 class foodEvent():
     def __init__(self):
@@ -11,6 +12,12 @@ class foodEvent():
 
 def plotMap(events,mapbox_access_token,csvFlag):
     
+    valid_token = requests.get('https://api.mapbox.com/v4/mapbox.streets/page.html?access_token=' + str(mapbox_access_token))
+
+    if valid_token.status_code != 200:
+        print('Invalid Mapbox Access Token, Displaying Table Only')
+        tableOnly = True
+        
     if mapbox_access_token == 0:
         tableOnly = True
     else:
