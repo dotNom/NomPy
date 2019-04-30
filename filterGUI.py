@@ -3,12 +3,8 @@ from tkinter import messagebox
 import datetime
 import EventMap
 
-
 class filterResults:
-    '''
-    Class for the mapbox access token GUI. This gets initialized only if there 
-    isn't a config.json file in the current directory
-    '''
+
     def __init__(self,foods):
 
         self.options = []
@@ -31,21 +27,23 @@ class filterResults:
         self.Fooddefault.set('None')
         tk.OptionMenu(self.window, self.Fooddefault, *foods).grid(row=1,column=0,columnspan=6,padx=5,pady=5)   
         
+        now = datetime.datetime.now()
+        months = ['January','February','March','April','May','June','July','August','September','October','November','December']
+        
         self.Monthdefault1 = tk.StringVar(self.window)
         self.Daydefault1 = tk.StringVar(self.window)
         self.Yeardefault1 = tk.StringVar(self.window)
-        self.Monthdefault1.set('None')
-        self.Daydefault1.set('None')
-        self.Yeardefault1.set('None')
+        self.Monthdefault1.set(str(now.month))
+        self.Daydefault1.set(str(now.day))
+        self.Yeardefault1.set(str(now.year))
         self.Monthdefault2 = tk.StringVar(self.window)
         self.Daydefault2 = tk.StringVar(self.window)
         self.Yeardefault2 = tk.StringVar(self.window)
         self.Monthdefault2.set('None')
         self.Daydefault2.set('None')
         self.Yeardefault2.set('None')
-        months = ['January','February','March','April','May','June','July','August','September','October','November','December']
         days = []
-        now = datetime.datetime.now()
+        
         years = [str(now.year-1)]
         for i in range(4):
             years.append(str(now.year+i))
