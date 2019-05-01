@@ -8,22 +8,6 @@ def main(url,foods,shouldCalendar):
 
     start = time.time()
     
-#    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos', 'breakfast', 'lunch', 'dinner', 'luncheon']
-#    foods = ['food']
-    #need to fix regex
-    #tiff's tiffs Tiffs
-    
-    #local calendar
-#    url = 'calendar.xml'
-#    url = 'http://calendar.utexas.edu/calendar.xml'
-#    https://law.utexas.edu/calendar/feed/rss/
-#    https://music.utexas.edu/events/calendar.xml
-#    url = 'http://calendar.mit.edu/calendar.xml'
-#    url = 'http://events.umich.edu/day/rss'
-#    url = 'http://events.umich.edu/week/rss'
-#    url = 'michigan.xml'
-    # michigan has quite different format and no geo, but it doesn't break
-    
     feeder = Feeder(url, foods)
     
     #get full calendar of all events found
@@ -237,9 +221,6 @@ class foodE:
         self.ext = track[1]
         self.ICSyes = track[2]
         
-#        elements = ['title', 'summary', 'geo_lat', 'geo_long', 'updated_parsed', 'link']
-#        [self._ccreate(event, element, name) for name, element in zip(names,elements)]
-        
         if 'title' in event.keys(): self.title = event.title
         if 'summary' in event.keys(): self.summary = event.summary
         if 'published_parsed' in event.keys(): self.time = event.published_parsed #not sure if we should use published_parsed or updated_parsed
@@ -373,6 +354,8 @@ class foodE:
             
         else:
             myICS = requests.get(url).text #retrieve ics and save as string in myICS
+            # UT is rate limiting us and pausing the ics downloads
+            time.sleep(.5)
        
             #clean up the stuff in the ics file
             myICS = myICS.split('BEGIN')
@@ -393,10 +376,7 @@ class foodE:
                 
         if type(myICS)==list:
             myICS = ''#.join(myICS)
-            #except:
-                #pass
-        # UT is rate limiting us and pausing the ics downloads
-        time.sleep(.5)
+
         
         return myICS
     
@@ -455,21 +435,21 @@ class Feeder:
         self.foodEs = []
         
         for event in self.feed.entries:
-#            try:
-            if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.summary):
-                foodtile = foodE(event, self.foods, self.track, trumba_ical=self.trumba_ical)
-                self.foodEs.append(foodtile)
-                self.track[0] += 1
-                self.track[1] = foodtile.ext
-                self.track[2] = foodtile.ICSyes
-                print('UPDATE: event #',self.track[0],' extension ',self.track[1],' do ICS ',self.track[2])
-#            except:
-#                print('bad event')
-#if __name__ == '__main__':
-#    feeder = main('http://events.umich.edu/week/rss',['food'],'YES')
-#    feeder = main('http://calendar.utexas.edu/calendar.xml',['food'],'YES')
-#    feeder = main('https://www.trumba.com/calendars/all-uc-davis-public-events.rss',['food'],'YES')
+            try:
+                if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.summary):
+                    foodtile = foodE(event, self.foods, self.track, trumba_ical=self.trumba_ical)
+                    self.foodEs.append(foodtile)
+                    self.track[0] += 1
+                    self.track[1] = foodtile.ext
+                    self.track[2] = foodtile.ICSyes
+                    print('UPDATE: event #',self.track[0],' extension ',self.track[1],' do ICS ',self.track[2])
+            except:
+                print('bad event')
 '''
+if __name__ == '__main__':
+    feeder = main('http://events.umich.edu/week/rss',['food'],'YES')
+    feeder = main('http://calendar.utexas.edu/calendar.xml',['food'],'YES')
+    feeder = main('https://www.trumba.com/calendars/all-uc-davis-public-events.rss',['food'],'YES')
 foods = ['food']
 #    url = 'calendar.xml'
 url = 'http://calendar.utexas.edu/calendar.xml'
