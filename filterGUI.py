@@ -33,7 +33,7 @@ class filterResults:
         self.Monthdefault1 = tk.StringVar(self.window)
         self.Daydefault1 = tk.StringVar(self.window)
         self.Yeardefault1 = tk.StringVar(self.window)
-        self.Monthdefault1.set(str(now.month))
+        self.Monthdefault1.set(months[now.month-1])
         self.Daydefault1.set(str(now.day))
         self.Yeardefault1.set(str(now.year))
         self.Monthdefault2 = tk.StringVar(self.window)
@@ -137,7 +137,6 @@ def return_filter(foodEvents,mapbox_access_token,csvFlag):
                     root.destroy()
             
             if flag == 0:
-#                print('Nothing Selected')
                 root = tk.Tk()
                 root.withdraw()
                 messagebox.showinfo('Invalid Entry', 'Nothing selected')   
