@@ -26,6 +26,17 @@ def plotMap(events,mapbox_access_token,csvFlag):
     tableData = {'Event Name':[],'Date':[],'Time':[],'Location':[]}
     csvData = {'Event Name':[],'Date':[],'Time':[],'Location':[],'Link':[]}
     def Listattributes(event):
+        dDate = ''
+        
+        Months = ['January','February','March','April','May',
+          'June','July','August','September','October',
+          'November','December']
+        
+        if event.time:
+            dDate = Months[event.time.tm_mon-1]
+            dDate += ' ' + str(event.time.tm_mday) + ', ' + str(event.time.tm_year)
+            tableData['Date'].append(dDate)
+            
         if event.title:
             date = event.title.split(': ')[0]
             if event.link:
@@ -35,12 +46,12 @@ def plotMap(events,mapbox_access_token,csvFlag):
             else:
                 tableData['Event Name'].append(event.title.split(date)[1][2:])
                 csvData['Link'].append('')
-            tableData['Date'].append(date)
+            if not dDate: tableData['Date'].append(date)
             csvData['Event Name'].append(event.title.split(date)[1][2:])
         else:
             tableData['Event Name'].append('')
             csvData['Event Name'].append('')
-            tableData['Date'].append('')
+            if not dDate: tableData['Date'].append('')
             
         if event.locwithBUI:
             tableData['Location'].append(event.locwithBUI.split('LOCATION:')[1].replace('\\',''))
@@ -155,7 +166,6 @@ def plotMap(events,mapbox_access_token,csvFlag):
             type = 'scattermapbox'
             )
     data.append(mapData)
- 
     df = pd.DataFrame(tableData)
     df2 = pd.DataFrame(csvData)
     
