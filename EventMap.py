@@ -4,6 +4,7 @@ import math as m
 import textwrap
 import pandas as pd
 import requests
+import os
 
 class foodEvent():
     def __init__(self):
@@ -16,9 +17,8 @@ def plotMap(events,mapbox_access_token,csvFlag):
 
     if valid_token.status_code != 200:
         print('Invalid Mapbox Access Token, Displaying Table Only')
-        tableOnly = True
-        
-    if mapbox_access_token == 0:
+        if os.path.exists('config.json'):
+            os.remove('config.json')
         tableOnly = True
     else:
         tableOnly = False
