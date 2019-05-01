@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup as bs4
 import time
 
 def main(url,foods,shouldCalendar):
-    
+
     start = time.time()
     
 #    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos', 'breakfast', 'lunch', 'dinner', 'luncheon']
@@ -159,16 +159,8 @@ def addtoICS(event,start,oldstring = ''):
         fillme.append('BEGIN:VEVENT\n')
         
         if event.descriptionICS: fillme.append(event.descriptionICS+'\n')
-        if event.timeend:
-            if event.timeend in event.timestamp:
-                event.timestamp = event.timestamp.split(event.timeend)[0]
-            if event.timeend in event.timestart:
-                event.timestart = event.timestart.split(event.timeend)[0]
-            fillme.append(event.timeend+'\n')
-        if event.timestart: 
-            if event.timestart in event.timestamp:
-                event.timestamp = event.timestamp.split(event.timestart)[0]
-            fillme.append(event.timestart+'\n')
+        if event.timeend: fillme.append(event.timeend+'\n')
+        if event.timestart: fillme.append(event.timestart+'\n')           
         if event.timestamp: fillme.append(event.timestamp+'\n')
         if event.locwithBUI: fillme.append(event.locwithBUI+'\n')
         if event.summaryICS: fillme.append(event.summaryICS+'\n')
@@ -187,6 +179,30 @@ def writetoICS(string,filename='Food_Calendar.ics'):
     with open(filename, encoding = "utf8", mode = 'w') as myfile:
         myfile.write(string)    
     
+class ICStoRSStime:
+
+    def __init__(self,ICS):
+        ICS = ICS.split(':')[-1]
+        self.tm_year = int(ICS[0:4])
+        self.tm_mon = int(ICS[4:6])
+        self.tm_mday = int(ICS[6:8])
+        
+        if 'T' in ICS: #not Allday
+            self.tm_hour = int(ICS[9:11])
+            self.tm_min = int(ICS[11:13])
+            self.tm_sec = int(ICS[13:15])
+        else: #Allday event
+            self.tm_hour = 0
+            self.tm_min = 0
+            self.tm_sec = 0
+            
+    def __str__(self):
+        out = '('
+        for attr, value in self.__dict__.items():
+            out += ' ' + attr + ' = ' + str(value) + ','
+        out = out.strip(',')
+        out += ' )'
+        return out
     
 class foodE:
     ''' Food event generated from calendar feed
@@ -241,18 +257,19 @@ class foodE:
         if self._trumba_ical:
             self.ICSyes = 1
             self._getICSprops()
+            self.time = ICStoRSStime(self.timestart)
         elif self.link:
             if self.track==0:
                 print('Checking for ics in ', self.link,'\n')
                 ynICS, ICSlink = findRSSonPAGE(self.link,'.ics','/ical','/ics',debugMode=1)
                 if ynICS:
                     print('In ',self.link,'  find ics extra')
-                    if self.link.split(':')[1] in ICSlink[0].split(':')[1]:
+                    if 'umich' in self._id:
+                        self.ICSyes = 1
+                    elif self.link.split(':')[1] in ICSlink[0].split(':')[1]:
                         self.ext = ICSlink[0].split(':')[1].split(self.link.split(':')[1])[1]
                         self.ICSyes = 1
                         print('ics extra: ', self.ext,'\n')
-                    elif 'umich' in self._id:
-                        self.ICSyes = 1
                                
             self._getICSprops()
             print('Done ics')
@@ -277,14 +294,24 @@ class foodE:
             DTSTART for start time
             LOCATION for building name and room number
         '''
-
-        toRet = None
         
+        def cleanline(toRet,extract):
+            
+            Allatr = ['DTSTART','DTEND','DTSTAMP','LOCATION','DESCRIPTION','SUMMARY'] #all known attributes to search for
+            
+            #Get rid of redundancies, basically make cleaner expressions:
+            for string in Allatr:
+                if string != extract:
+                    toRet = toRet.split(string)[0]
+             
+            return toRet
+        
+        toRet = None
+
         if type(a)==str:
             a = a.split('\n')
             found = None
-            
-            
+
             for itm in a:      
                 if itm.find(extract)>=0:
                     toRet = itm.strip()
@@ -296,12 +323,15 @@ class foodE:
                     itmNew = itm.split(':')
                     if len(itmNew)>1:
                         if itmNew[0].isupper():
+                            toRet = cleanline(toRet,extract)
                             return toRet
                         else:
                             toRet += itm.strip()
                     else:
                         toRet += itm.strip()
-            
+
+        if toRet: toRet = cleanline(toRet,extract)
+                        
         return toRet
         
     def _formatTIME(self,intime):
@@ -435,9 +465,10 @@ class Feeder:
                 print('UPDATE: event #',self.track[0],' extension ',self.track[1],' do ICS ',self.track[2])
 #            except:
 #                print('bad event')
-if __name__ == '__main__':
+#if __name__ == '__main__':
+#    feeder = main('http://events.umich.edu/week/rss',['food'],'YES')
 #    feeder = main('http://calendar.utexas.edu/calendar.xml',['food'],'YES')
-    feeder = main('https://www.trumba.com/calendars/all-uc-davis-public-events.rss',['food'],'YES')
+#    feeder = main('https://www.trumba.com/calendars/all-uc-davis-public-events.rss',['food'],'YES')
 '''
 foods = ['food']
 #    url = 'calendar.xml'

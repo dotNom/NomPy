@@ -70,7 +70,9 @@ def plotMap(events,mapbox_access_token,csvFlag):
     for item in events: 
         timeStr = ''
         if hasattr(item, 'timestart') and hasattr(item,'timeend'): 
-            if item.timeend is not None:
+            if 'VALUE=DATE' in item.timestart:
+                    timeStr = 'All Day'            
+            elif item.timeend is not None:
                 Starttime = item.timestart.split('T')[-1]
                 Starttime = Starttime.split('Z')[0]
                 Starthour = int(Starttime[0:2])-5
@@ -86,9 +88,7 @@ def plotMap(events,mapbox_access_token,csvFlag):
                 Endtime = str(Endhour)+':'+Endminute
                 
                 timeStr = Starttime + '-' + Endtime
-            else: 
-                if 'VALUE=DATE' in item.timestart:
-                    timeStr = 'All Day'
+
             setattr(item,'timestr',timeStr)
             
         if hasattr(item, 'geo'):
