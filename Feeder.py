@@ -8,7 +8,6 @@ def main(url,foods,shouldCalendar):
     
     start = time.time()
     
-#    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos']
 #    foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos', 'breakfast', 'lunch', 'dinner', 'luncheon']
 #    foods = ['food']
     #need to fix regex
@@ -204,7 +203,7 @@ class foodE:
         
         '''
         
-    def __init__(self, event, foods,track):
+    def __init__(self, event, foods, track, trumba_ical = None):
         '''
         basic init
         make smarter/more robust later
@@ -233,9 +232,16 @@ class foodE:
         #specific hack for UMich and UTlaw
         if 'id' in event.keys(): self._id = event.id
         
+        #specific hack for trumba
+        self._trumba_ical = trumba_ical
+        if self._trumba_ical: self._id = event.id.split('/')[-1]
+        
         self._make_geo(event)
         
-        if self.link:
+        if self._trumba_ical:
+            self.ICSyes = 1
+            self._getICSprops()
+        elif self.link:
             if self.track==0:
                 print('Checking for ics in ', self.link,'\n')
                 ynICS, ICSlink = findRSSonPAGE(self.link,'.ics','/ical','/ics',debugMode=1)
@@ -331,23 +337,29 @@ class foodE:
             url = link + 'ics/'
         else:
             url = link + '.ics'
-        
-        myICS = requests.get(url).text #retrieve ics and save as string in myICS
+            
+        if self._trumba_ical:
+            myICS = [ics for ics in self._trumba_ical.split('BEGIN') if self._id in ics]
+            
+        else:
+            myICS = requests.get(url).text #retrieve ics and save as string in myICS
        
-        #clean up the stuff in the ics file
-        myICS = myICS.split('BEGIN')
-    
-        for entry in myICS:
-            #try:
-            start = self._extractICS(entry,'DTSTART')
-            if start:
-                start = start.split(':')
-                del(start[0])
-                start = start[0]
-                reftime=self._formatTIME(intime.tm_year)+self._formatTIME(intime.tm_mon)+self._formatTIME(intime.tm_mday)
-                if int(reftime)<=int(start[0:8]):
-                    myICS = entry
-                    break
+            #clean up the stuff in the ics file
+            myICS = myICS.split('BEGIN')
+        if self.time:
+            for entry in myICS:
+                #try:
+                start = self._extractICS(entry,'DTSTART')
+                if start:
+                    start = start.split(':')
+                    del(start[0])
+                    start = start[0]
+                    reftime=self._formatTIME(intime.tm_year)+self._formatTIME(intime.tm_mon)+self._formatTIME(intime.tm_mday)
+                    if int(reftime)<=int(start[0:8]):
+                        myICS = entry
+                        break
+        else:
+            myICS = myICS[0]
                 
         if type(myICS)==list:
             myICS = ''#.join(myICS)
@@ -388,8 +400,12 @@ class Feeder:
         self.feed = feedparser.parse(url)
         if 'etag' in self.feed.keys(): self.etag = self.feed.etag
         self.track = [0,'',0]
-        self.make_foodEs()
         
+        self.trumba_ical = None
+        if 'trumba' in url:
+            self.trumba_ical = requests.get('.'.join(url.split('.')[:-1]) + '.ics').text
+        
+        self.make_foodEs()
         
     def update(self,url):
         if hasattr(self, 'etag'):
@@ -409,18 +425,20 @@ class Feeder:
         self.foodEs = []
         
         for event in self.feed.entries:
-            try:
-                if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.summary):
-                    foodtile = foodE(event, self.foods, self.track)
-                    self.foodEs.append(foodtile)
-                    self.track[0] += 1
-                    self.track[1] = foodtile.ext
-                    self.track[2] = foodtile.ICSyes
-                    print('UPDATE: event #',self.track[0],' extension ',self.track[1],' do ICS ',self.track[2])
-            except:
-                print('bad event')
+#            try:
+            if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.summary):
+                foodtile = foodE(event, self.foods, self.track, trumba_ical=self.trumba_ical)
+                self.foodEs.append(foodtile)
+                self.track[0] += 1
+                self.track[1] = foodtile.ext
+                self.track[2] = foodtile.ICSyes
+                print('UPDATE: event #',self.track[0],' extension ',self.track[1],' do ICS ',self.track[2])
+#            except:
+#                print('bad event')
+if __name__ == '__main__':
+#    feeder = main('http://calendar.utexas.edu/calendar.xml',['food'],'YES')
+    feeder = main('https://www.trumba.com/calendars/all-uc-davis-public-events.rss',['food'],'YES')
 '''
-#if __name__ == '__main__':
 foods = ['food']
 #    url = 'calendar.xml'
 url = 'http://calendar.utexas.edu/calendar.xml'
