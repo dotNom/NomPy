@@ -319,11 +319,3 @@ def listTostr(foodIn,sep,item=0):
 def addtolist(guibut,listIn):
     if guibut and (guibut not in listIn):
         listIn.append(guibut)
-
-
-#For debugging settingGUI
-defaultALL = ['http://calendar.utexas.edu/calendar.xml', 'http://calendar.mit.edu/calendar.xml', 'http://events.umich.edu/day/rss', 'http://events.umich.edu/week/rss','https://law.utexas.edu/calendar/feed/rss/','https://music.utexas.edu/events/calendar.xml']        
-defaultFOOD = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos', 'breakfast', 'lunch', 'dinner', 'luncheon', 'hotdog', 'beans','chocolate']
-a = setGUI(defaultALL,defaultFOOD)    
-print('INITIAL SETTINGS FROM GUI:')
-print(a.doCalendar + ' Calendar', a.foodToSearch, a.URLlist, sep = '\n')
