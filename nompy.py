@@ -13,7 +13,17 @@ def yeartime(event):
     return int(a)
 
 #Settings gui for setting properties
-defaultALL = ['http://calendar.utexas.edu/calendar.xml', 'http://calendar.mit.edu/calendar.xml', 'http://events.umich.edu/day/rss', 'http://events.umich.edu/week/rss','https://law.utexas.edu/calendar/feed/rss/','https://music.utexas.edu/events/calendar.xml']        
+#All URLS tried/found:
+#['http://calendar.utexas.edu/calendar.xml', 
+#'http://calendar.mit.edu/calendar.xml', 
+#'http://events.umich.edu/day/rss', 
+#'http://events.umich.edu/week/rss',
+#'https://law.utexas.edu/calendar/feed/rss/',
+#'https://music.utexas.edu/events/calendar.xml',
+#'https://www.trumba.com/calendars/all-uc-davis-public-events.rss']   
+
+#Only UT calendars     
+defaultALL = ['http://calendar.utexas.edu/calendar.xml','https://law.utexas.edu/calendar/feed/rss/','https://music.utexas.edu/events/calendar.xml'] 
 defaultFOOD = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos', 'breakfast', 'lunch', 'dinner', 'luncheon', 'hotdog', 'beans','chocolate']
 a = sgui.setGUI(defaultALL,defaultFOOD)  
 print('INITIAL SETTINGS FROM GUI:')
@@ -25,21 +35,7 @@ foods = a.foodToSearch
 token = gui.return_token()
 mapbox_access_token = token
 
-#foods = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos']
-#foods = ['food']
-#need to fix regex
-#tiff's tiffs Tiffs
-
-#local calendar
-#    url = 'calendar.xml'
-#url = 'http://calendar.utexas.edu/calendar.xml'
-#    url = 'http://calendar.mit.edu/calendar.xml'
-#    url = 'http://events.umich.edu/day/rss'
-# michigan has quite different format and no geo, but it doesn't break
-
-#feeder = Feeder.main(url,foods)
-#    feeder = Feeder(url, foods)
-#foodEvents = feeder.foodEs
+#calendar
 foodEvents = []
 
 #getting all the food events in the url list
