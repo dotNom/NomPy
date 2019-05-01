@@ -1,5 +1,5 @@
 # About NomPy
-NomPy is an application designed to search for free food events by parsing data from RSS feeds. The program plots the results as a map and table while exporting calendar events and a CSV summary to the current directory. Users can choose to run the program from a Python interpreter or from the exexcutable file. 
+NomPy is an application designed to search for free food events by parsing data from RSS feeds. The program creates an html file that displays the results as a map and table on a webpage. The results are also exported as calendar events and a CSV summary to the current directory. Users can choose to run the program from a Python interpreter or from the exexcutable file. 
 
 ## User Inputs
 ### Input GUI
@@ -20,4 +20,5 @@ Download and extract the NomPy.zip file, and run NomPy.exe. Note: the file will 
 NomPy supports feeds hosted by:
 * Localist
 * Trumbo
+
 NomPy may work for other feeds, but is tailored for the listed feeds. 
