@@ -148,7 +148,7 @@ class setGUI:
         urlOK = False
         
         if newurl:
-            if 'rss' in newurl or '.xml' in newurl:    
+            if '/rss' in newurl or '.xml' in newurl or '.rss' in newurl:    
                 urlOK = Feeder.validlink(newurl)
             
             if urlOK:
