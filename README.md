@@ -16,7 +16,7 @@ While the program is running, the total number of calendar events found will be 
 # How to use NomPy
 NomPy has the option of being run through a Python interpreter or by using the bundled NomPy.exe file.
 ## From Source:
-Download all files in the 'NomPy Source' folder from the GitHub respository and install the required packages.
+Download all files in the 'NomPy_Source' folder from the GitHub respository and install the required packages.
 
 For conda
 ```
@@ -27,7 +27,7 @@ For pip
 ```
 pip install -r requirements.txt
 ```
-Navigate to the nomPy Source directory and start the program by running 'NomPy.py'. Use the GUI that pops up to set preferences. The map and table will open in your default browser.
+Start the program by running 'NomPy.py' and use the GUI that pops up to set preferences. The map and table will open in your default browser.
 
 ## From executable:
 Download and extract the 'NomPy.Application.zip' file from the latest release, and run 'NomPy.exe'. *Note:* the application will not work unless 'NomPy.exe' is kept in the containing folder created when it is unzipped. If you would like to move the file, please create a shortcut that links to the original.
@@ -47,6 +47,6 @@ Delete the 'config.json' file from your directory and re-run NomPy. NomPy search
 Make sure all blank (tkinter) windows are closed and re-run NomPy. This can happen the files are not downloaded properly and an extra GUI window fails to get destroyed. Make sure all necessary files are in the same direcotry (including 'dotnom.png'), and try again.
 
 ## What are the required packages and versions needed to run the source code?
-The 'requirements.txt' file contains a list of the packages used in NomPy with their respective versions. All packages are available to download through *pip.*
+The 'requirements.txt' file contains a list of the packages used in NomPy with their respective versions. See the above section 'How to Use NomPy' => 'From Source' for installation information via *pip* and *conda.*
 
 Happy Eating!
