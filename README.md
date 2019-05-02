@@ -16,7 +16,7 @@ While the program is running, the total number of calendar events found will be 
 # How to use NomPy
 NomPy has the option of being run through a Python interpreter or by using the bundled NomPy.exe file. 
 ## From Python:
-Download all files ending in .py from the GitHub respository. Run NomPy.py and use the GUI to set preferences.
+Download all files ending in .py and the dotnom.png file from the GitHub respository. Run NomPy.py and use the GUI to set preferences.
 
 ## From executable:
 Download and extract the NomPy.zip file, and run NomPy.exe. Note: the file will not work unless it is kept in the containing folder created when it is unzipped.
