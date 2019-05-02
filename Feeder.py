@@ -4,35 +4,12 @@ import requests
 from bs4 import BeautifulSoup as bs4
 import time
 
-def main(url,foods,shouldCalendar):
+def main(url,foods):
 
     start = time.time()
     
     feeder = Feeder(url, foods)
-    
-    #get full calendar of all events found
-    
-    #shouldCalendar Do you want calendar of events?:'yes' or 'no'. 
-    toStart = 0
-    summ = 0
-    string = ''
-    
-    if shouldCalendar.upper()=='YES':
-        print("Making Calendar")
-        for event in feeder.foodEs:
-            #print(event.ICSstr)
-#            print(event.summaryICS)
-            summ += 1
-#            print(summ)
-            if toStart == 0: 
-                string = addtoICS(event,1)
-                toStart += 1
-            else:
-                string = addtoICS(event,0,string)
-                                  
-        if string:
-            writetoICS(string,'CollatedICS.ics')
-        print('Calendar saved as "CollatedICS.ics"\ndone')
+
     end = time.time()
     
     pie='''
@@ -48,6 +25,31 @@ def main(url,foods,shouldCalendar):
     print('\nOpening webpage')
     print('runtime:',end-start,'s')
     return feeder
+
+def doCalendar(foodEs,shouldCalendar):
+    #get full calendar of all events found
+    
+    #shouldCalendar Do you want calendar of events?:'yes' or 'no'. 
+    toStart = 0
+    summ = 0
+    string = ''
+    
+    if shouldCalendar.upper()=='YES':
+        print("Making Calendar")
+        for event in foodEs:
+            #print(event.ICSstr)
+#            print(event.summaryICS)
+            summ += 1
+#            print(summ)
+            if toStart == 0: 
+                string = addtoICS(event,1)
+                toStart += 1
+            else:
+                string = addtoICS(event,0,string)
+                                  
+        if string:
+            writetoICS(string,'CollatedICS.ics')
+        print('Calendar saved as "CollatedICS.ics"\ndone')    
 
 def validlink(link,debugMode=1):
     '''

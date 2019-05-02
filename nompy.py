@@ -54,7 +54,7 @@ foodEvents = []
 #getting all the food events in the url list
 for url in a.URLlist:
     print("Working on:", url)
-    feeder = Feeder.main(url,foods,a.doCalendar)
+    feeder = Feeder.main(url,foods)
     [foodEvents.append(Es) for Es in feeder.foodEs]
 
 #Sorting food events
@@ -62,6 +62,9 @@ Times = list(map(yeartime,foodEvents))
 temp = [ [event,time] for event,time in zip(foodEvents,Times)]
 temp = sorted(temp,key = lambda x: x[1])
 foodEvents = [event[0] for event in temp]
+
+#Do Calendar if desired
+Feeder.doCalendar(foodEvents,a.doCalendar)
 
 #Plot events
 EventMap.plotMap(foodEvents,mapbox_access_token,1)
