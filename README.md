@@ -27,3 +27,9 @@ NomPy supports feeds hosted by:
 * Trumbo
 
 NomPy may work for other feeds, but is tailored for the listed feeds. 
+
+# Troubleshooting
+## I need to change my Mapbox access token, but the GUI isn't showing up
+Delete the 'config.json' file from your directory and re-run NomPy. NomPy searches the current directory for the config file (where the Mapbox token is stored), and loads the token if it is there. The GUI will not show up if the file exists in the directory.
+
+Happy Eating!
