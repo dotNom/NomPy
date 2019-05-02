@@ -27,7 +27,7 @@ For pip
 ```
 pip install -r requirements.txt
 ```
-Start the program by running 'NomPy.py' and use the GUI that pops up to set preferences. The map and table will open in your default browser.
+Navigate to the nomPy Source directory and start the program by running 'NomPy.py'. Use the GUI that pops up to set preferences. The map and table will open in your default browser.
 
 ## From executable:
 Download and extract the 'NomPy.Application.zip' file from the latest release, and run 'NomPy.exe'. *Note:* the application will not work unless 'NomPy.exe' is kept in the containing folder created when it is unzipped. If you would like to move the file, please create a shortcut that links to the original.
