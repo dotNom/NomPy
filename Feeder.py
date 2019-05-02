@@ -3,6 +3,7 @@ import re
 import requests
 from bs4 import BeautifulSoup as bs4
 import time
+import sys
 
 def main(url,foods,shouldCalendar):
 
@@ -21,9 +22,9 @@ def main(url,foods,shouldCalendar):
         print("Making Calendar")
         for event in feeder.foodEs:
             #print(event.ICSstr)
-            print(event.summaryICS)
+#            print(event.summaryICS)
             summ += 1
-            print(summ)
+#            print(summ)
             if toStart == 0: 
                 string = addtoICS(event,1)
                 toStart += 1
@@ -32,9 +33,20 @@ def main(url,foods,shouldCalendar):
                                   
         if string:
             writetoICS(string,'CollatedICS.ics')
-        
+        print('Calendar saved as "CollatedICS.ics"')
     end = time.time()
     
+    pie='''
+            )
+                 (
+              )
+         __..---..__
+     ,-='  /  |  \  `=-.
+    :--..___________..--;
+     \.,_____________,./
+     '''
+    print(pie)
+    print('\ndone\nOpening webpage')
     print('runtime:',end-start,'s')
     return feeder
 
@@ -99,11 +111,11 @@ def findRSSonPAGE(linklist,*string,debugMode=1):
                         for entr in string:
                             if Attrhref.find(entr)>=0:
                             
-                                if debugMode == 1:
-                                    if 'title' in Attr:
-                                        print(ctr,':',Attrhref,Attr['title'])
-                                    else:
-                                        print(ctr,':',Attr)
+#                                if debugMode == 1:
+#                                    if 'title' in Attr:
+#                                        print(ctr,':',Attrhref,Attr['title'])
+#                                    else:
+#                                        print(ctr,':',Attr)
                                         
                                 isRss[ct] = True
                                 if Attrhref not in RssLink_s[ct]:
@@ -244,16 +256,16 @@ class foodE:
                 print('Checking for ics in ', self.link,'\n')
                 ynICS, ICSlink = findRSSonPAGE(self.link,'.ics','/ical','/ics',debugMode=1)
                 if ynICS:
-                    print('In ',self.link,'  find ics extra')
+#                    print('In ',self.link,'  find ics extra')
                     if 'umich' in self._id:
                         self.ICSyes = 1
                     elif self.link.split(':')[1] in ICSlink[0].split(':')[1]:
                         self.ext = ICSlink[0].split(':')[1].split(self.link.split(':')[1])[1]
                         self.ICSyes = 1
-                        print('ics extra: ', self.ext,'\n')
+#                        print('ics extra: ', self.ext,'\n')
                                
             self._getICSprops()
-            print('Done ics')
+#            print('Done ics')
      
     #maybe better way to do init
     def _make_geo(self, event):
@@ -433,7 +445,8 @@ class Feeder:
                 
     def make_foodEs(self):
         self.foodEs = []
-        
+        spinner = spinning_cursor()
+
         for event in self.feed.entries:
             try:
                 if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.summary):
@@ -442,9 +455,21 @@ class Feeder:
                     self.track[0] += 1
                     self.track[1] = foodtile.ext
                     self.track[2] = foodtile.ICSyes
-                    print('UPDATE: event #',self.track[0],' extension ',self.track[1],' do ICS ',self.track[2])
+#                    print('UPDATE: event #',self.track[0],' extension ',self.track[1],' do ICS ',self.track[2])
+#                    sys.stdout.write(next(spinner)+'Got '+str(self.track[0])+' ics events')
+#                    sys.stdout.flush()
+#                    time.sleep(0.1)
+#                    sys.stdout.write('\b')
+                    print('\r' + next(spinner)+' Got '+str(self.track[0])+' ics events'.format(self.track[0]),end='')
             except:
                 print('bad event')
+        print('\n')
+                
+def spinning_cursor():
+    while True:
+        for cursor in '|/-\\':
+            yield cursor
+
 '''
 if __name__ == '__main__':
     feeder = main('http://events.umich.edu/week/rss',['food'],'YES')

@@ -22,10 +22,23 @@ def yeartime(event):
 #'https://music.utexas.edu/events/calendar.xml',
 #'https://www.trumba.com/calendars/all-uc-davis-public-events.rss']   
 
+banner = '''
+  _   _                 _____       
+ | \ | |               |  __ \      
+ |  \| | ___  _ __ ___ | |__) |   _ 
+ | . ` |/ _ \| '_ ` _ \|  ___/ | | |
+ | |\  | (_) | | | | | | |   | |_| |
+ |_| \_|\___/|_| |_| |_|_|    \__, |
+                               __/ |
+                              |___/ 
+'''
+print(banner, '            by .nom \n')
+
 #Only UT calendars     
 defaultALL = ['http://calendar.utexas.edu/calendar.xml','https://law.utexas.edu/calendar/feed/rss/','https://music.utexas.edu/events/calendar.xml'] 
 defaultFOOD = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos', 'breakfast', 'lunch', 'dinner', 'luncheon', 'hotdog', 'beans','chocolate']
 a = sgui.setGUI(defaultALL,defaultFOOD)  
+
 print('INITIAL SETTINGS FROM GUI:')
 print(a.doCalendar + ' Calendar', a.foodToSearch, a.URLlist, sep = '\n')
 
