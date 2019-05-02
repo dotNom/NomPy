@@ -8,7 +8,7 @@ After running NomPy, the user will first encounter a graphical interface to set 
 The user can add a new RSS feed to the search by providing the link to the feed (click "Subscribe to Feed"), not the hosting page itself.
 
 ### Mapbox Capability
-The map plotting functionality requires a Mapbox account to be enabled (sign up here https://account.mapbox.com/auth/signup/). After creating an account, the user can copy the default public token in the account hompage. The access token can be pasted into the interface that opens in order to enable map plotting. Alternatively, if the user does not wish to create a Mapbox account, an option to display the table results only can be selected.
+The map plotting functionality requires a Mapbox account to be enabled (sign up here https://account.mapbox.com/auth/signup/). After creating an account, the user can copy the default public token in the account homepage. The access token can be pasted into the interface that opens in order to enable map plotting. Alternatively, if the user does not wish to create a Mapbox account, an option to display the table results only can be selected.
 
 ## Outputs
 While the program is running, the total number of calendar events found will be displayed on the console. When it is finished, an html page containing a map (if enabled) and table of the results will open in the user's browser. Another interface will be generated to allow the user to filter the results by date and food type and replot the filtered results. __***Exiting the filter GUI is necessary to end the program***__ The filter GUI can be exited by clicking 'Cancel' or the exit icon in the upper right corner.
