@@ -5,6 +5,7 @@ import textwrap
 import pandas as pd
 import requests
 import os
+import time
 
 class foodEvent():
     def __init__(self):
@@ -78,6 +79,10 @@ def plotMap(events,mapbox_access_token,csvFlag):
     text = []
     geocount = 0
     hours = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    
+    is_dst = time.daylight and time.localtime().tm_isdst > 0
+    utc_offset = -(time.altzone if is_dst else time.timezone)/3600 # Offset from utc time in hours
+    
     for item in events: 
         timeStr = ''
         if hasattr(item, 'timestart') and hasattr(item,'timeend'): 
@@ -86,17 +91,17 @@ def plotMap(events,mapbox_access_token,csvFlag):
             elif item.timeend is not None:
                 Starttime = item.timestart.split('T')[-1]
                 Starttime = Starttime.split('Z')[0]
-                Starthour = int(Starttime[0:2])-5
+                Starthour = int(Starttime[0:2]) + int(utc_offset)
                 Starthour = hours[Starthour]
                 Startminute = Starttime[2:4]
                 Starttime = str(Starthour)+':'+Startminute
                 
                 Endtime = item.timeend.split('T')[-1]
                 Endtime = Endtime.split('Z')[0]
-                Endhour = int(Endtime[0:2])-5
+                Endhour = int(Endtime[0:2]) + int(utc_offset)
                 Endhour = hours[Endhour]
                 Endminute = Endtime[2:4]
-                Endtime = str(Endhour)+':'+Endminute
+                Endtime = str(Endhour)+':'+ Endminute
                 
                 timeStr = Starttime + '-' + Endtime
 
