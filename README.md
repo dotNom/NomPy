@@ -35,4 +35,7 @@ Delete the 'config.json' file from your directory and re-run NomPy. NomPy search
 ## I am getting a strange error, and the user Initial Settings GUI won't show up
 Make sure all blank (tkinter) windows are closed and re-run NomPy. This can happen the files are not downloaded properly and an extra GUI window fails to get destroyed. Make sure all necessary files are in the same direcotry (including 'dotnom.png'), and try again.
 
+## What are the required packages and versions needed to run the source code?
+The 'requirements.txt' file contains a list of the packages used in NomPy with their respective versions. All packages are available to download through *pip.*
+
 Happy Eating!
