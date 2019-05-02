@@ -22,7 +22,6 @@ def main(url,foods):
      \.,_____________,./
      '''
     print(pie)
-    print('\nOpening webpage')
     print('runtime:',end-start,'s')
     return feeder
 
@@ -450,14 +449,15 @@ class Feeder:
 
         for event in self.feed.entries:
             try:
-                if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.summary):
-                    foodtile = foodE(event, self.foods, self.track, trumba_ical=self.trumba_ical)
-                    self.foodEs.append(foodtile)
-                    self.track[0] += 1
-                    self.track[1] = foodtile.ext
-                    self.track[2] = foodtile.ICSyes
-
-                    print('\r' + next(spinner)+' Got '+str(self.track[0])+' ics events'.format(self.track[0]),end='')
+                if hasattr(event, 'summary'):
+                    if re.findall(r"(?=("+'|'.join(self.foods)+r"))", event.summary):
+                        foodtile = foodE(event, self.foods, self.track, trumba_ical=self.trumba_ical)
+                        self.foodEs.append(foodtile)
+                        self.track[0] += 1
+                        self.track[1] = foodtile.ext
+                        self.track[2] = foodtile.ICSyes
+    
+                        print('\r' + next(spinner)+' Got '+str(self.track[0])+' ics events'.format(self.track[0]),end='')
             except:
                 print('bad event')
         print('\n')
@@ -467,8 +467,9 @@ def spinning_cursor():
         for cursor in '|/-\\':
             yield cursor
 
-'''
 if __name__ == '__main__':
+    feeder = main('https://music.utexas.edu/events/calendar.xml',['food'])
+'''
     feeder = main('http://events.umich.edu/week/rss',['food'],'YES')
     feeder = main('http://calendar.utexas.edu/calendar.xml',['food'],'YES')
     feeder = main('https://www.trumba.com/calendars/all-uc-davis-public-events.rss',['food'],'YES')

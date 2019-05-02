@@ -59,6 +59,7 @@ for url in a.URLlist:
 if len(foodEvents) == 0:
     print("didn't find anything :(")
 else:
+    print('\nOpening webpage')
     #Sorting food events
     Times = list(map(yeartime,foodEvents))
     temp = [ [event,time] for event,time in zip(foodEvents,Times)]
