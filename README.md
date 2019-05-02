@@ -16,7 +16,7 @@ While the program is running, the total number of calendar events found will be 
 # How to use NomPy
 NomPy has the option of being run through a Python interpreter or by using the bundled NomPy.exe file. 
 ## From Python:
-Download all files ending in .py and the dotnom.png file from the GitHub respository. Run NomPy.py and use the GUI to set preferences.
+Download all files ending in .py and the dotnom.png file from the GitHub respository. Also, make sure to download 'dotnom.png' or the program will not run. Start the program by running NomPy.py and use the GUI to set preferences.
 
 ## From executable:
 Download and extract the NomPy.zip file, and run NomPy.exe. Note: the file will not work unless it is kept in the containing folder created when it is unzipped.
@@ -27,3 +27,12 @@ NomPy supports feeds hosted by:
 * Trumbo
 
 NomPy may work for other feeds, but is tailored for the listed feeds. 
+
+# Troubleshooting
+## I need to change my Mapbox access token, but the GUI isn't showing up
+Delete the 'config.json' file from your directory and re-run NomPy. NomPy searches the current directory for the config file (where the Mapbox token is stored), and loads the token if it is there. The GUI will not show up if the file exists in the directory.
+
+## I am getting a strange error, and the user Initial Settings GUI won't show up
+Make sure all blank (tkinter) windows are closed and re-run NomPy. This can happen the files are not downloaded properly and an extra GUI window fails to get destroyed. Make sure all necessary files are in the same direcotry (including 'dotnom.png'), and try again.
+
+Happy Eating!
