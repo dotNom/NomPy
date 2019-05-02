@@ -15,8 +15,19 @@ While the program is running, the total number of calendar events found will be 
 
 # How to use NomPy
 NomPy has the option of being run through a Python interpreter or by using the bundled NomPy.exe file.
-## From Python:
-Download all files in the 'NomPy Source' folder from the GitHub respository. Start the program by running 'NomPy.py' and use the GUI to set preferences.
+## From Source:
+Download all files in the 'NomPy Source' folder from the GitHub respository and install the required packages.
+
+For conda
+```
+conda install --file requirements.txt
+```
+
+For pip
+```
+pip install -r requirements.txt
+```
+Start the program by running 'NomPy.py' and use the GUI that pops up to set preferences. The map and table will open in your default browser.
 
 ## From executable:
 Download and extract the 'NomPy.Application.zip' file from the latest release, and run 'NomPy.exe'. *Note:* the application will not work unless 'NomPy.exe' is kept in the containing folder created when it is unzipped. If you would like to move the file, please create a shortcut that links to the original.

@@ -5,6 +5,7 @@ chardet==3.0.4
 decorator==4.4.0
 feedparser==5.2.1
 jsonschema==3.0.1
+lxml==4.3.3
 nbformat==4.4.0
 numpy==1.16.3
 pandas==0.24.2
