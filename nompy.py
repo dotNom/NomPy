@@ -56,17 +56,19 @@ for url in a.URLlist:
     print("Working on:", url)
     feeder = Feeder.main(url,foods)
     [foodEvents.append(Es) for Es in feeder.foodEs]
-
-#Sorting food events
-Times = list(map(yeartime,foodEvents))
-temp = [ [event,time] for event,time in zip(foodEvents,Times)]
-temp = sorted(temp,key = lambda x: x[1])
-foodEvents = [event[0] for event in temp]
-
-#Do Calendar if desired
-Feeder.doCalendar(foodEvents,a.doCalendar)
-
-#Plot events
-EventMap.plotMap(foodEvents,mapbox_access_token,1)
-
-filteredEvents = filterGUI.return_filter(foodEvents,mapbox_access_token,0)
+if len(foodEvents) == 0:
+    print("didn't find anything :(")
+else:
+    #Sorting food events
+    Times = list(map(yeartime,foodEvents))
+    temp = [ [event,time] for event,time in zip(foodEvents,Times)]
+    temp = sorted(temp,key = lambda x: x[1])
+    foodEvents = [event[0] for event in temp]
+    
+    #Do Calendar if desired
+    Feeder.doCalendar(foodEvents,a.doCalendar)
+    
+    #Plot events
+    EventMap.plotMap(foodEvents,mapbox_access_token,1)
+    
+    filteredEvents = filterGUI.return_filter(foodEvents,mapbox_access_token,0)

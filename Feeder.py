@@ -425,7 +425,7 @@ class Feeder:
         self.track = [0,'',0]
         
         self.trumba_ical = None
-        if 'trumba' in url:
+        if 'trumba' in self.url:
             self.trumba_ical = requests.get('.'.join(url.split('.')[:-1]) + '.ics').text
         
         self.make_foodEs()
