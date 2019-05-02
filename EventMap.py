@@ -210,7 +210,8 @@ def plotMap(events,mapbox_access_token,csvFlag):
         fig = dict(data=data, layout=layout)
     
     if csvFlag == 1:
-        df2.to_csv(r'Free_Food_Events.csv',index = False)        
+        df2.to_csv(r'Free_Food_Events.csv',index = False)
+        print('Events saved as "Free_Food_Events.csv"')        
         py.plot(fig, filename='Free_Food.html')
     else:
         py.plot(fig, filename='Filtered_Free_Food.html')

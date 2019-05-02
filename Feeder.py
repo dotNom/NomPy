@@ -3,7 +3,6 @@ import re
 import requests
 from bs4 import BeautifulSoup as bs4
 import time
-import sys
 
 def main(url,foods,shouldCalendar):
 
@@ -33,7 +32,7 @@ def main(url,foods,shouldCalendar):
                                   
         if string:
             writetoICS(string,'CollatedICS.ics')
-        print('Calendar saved as "CollatedICS.ics"')
+        print('Calendar saved as "CollatedICS.ics"\ndone')
     end = time.time()
     
     pie='''
@@ -46,7 +45,7 @@ def main(url,foods,shouldCalendar):
      \.,_____________,./
      '''
     print(pie)
-    print('\ndone\nOpening webpage')
+    print('\nOpening webpage')
     print('runtime:',end-start,'s')
     return feeder
 
@@ -455,11 +454,7 @@ class Feeder:
                     self.track[0] += 1
                     self.track[1] = foodtile.ext
                     self.track[2] = foodtile.ICSyes
-#                    print('UPDATE: event #',self.track[0],' extension ',self.track[1],' do ICS ',self.track[2])
-#                    sys.stdout.write(next(spinner)+'Got '+str(self.track[0])+' ics events')
-#                    sys.stdout.flush()
-#                    time.sleep(0.1)
-#                    sys.stdout.write('\b')
+
                     print('\r' + next(spinner)+' Got '+str(self.track[0])+' ics events'.format(self.track[0]),end='')
             except:
                 print('bad event')
