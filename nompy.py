@@ -35,7 +35,7 @@ banner = '''
 print(banner, '            by .nom \n')
 
 #Only UT calendars     
-defaultALL = ['http://calendar.utexas.edu/calendar.xml','https://law.utexas.edu/calendar/feed/rss/','https://music.utexas.edu/events/calendar.xml'] 
+defaultALL = ['http://calendar.utexas.edu/calendar.xml','https://law.utexas.edu/calendar/feed/rss/','https://music.utexas.edu/events/calendar.xml', 'https://www.trumba.com/calendars/college-of-communication-event-calendar.rss'] 
 defaultFOOD = ['food', 'pizza', 'chinese', 'burgers', 'chicken', 'fries', 'rice', 'refreshments', 'cookies', 'sushi', 'sandwiches', 'coffee', 'dougnuts', 'snacks', 'beer', 'cupcakes', 'brownies', 'tacos', 'breakfast', 'lunch', 'dinner', 'luncheon', 'hotdog', 'beans','chocolate']
 a = sgui.setGUI(defaultALL,defaultFOOD)  
 
